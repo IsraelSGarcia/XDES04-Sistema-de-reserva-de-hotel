@@ -37,21 +37,21 @@ class DataGenerator:
         """Gera dados completos de hóspede para testes"""
         name = DataGenerator.generate_random_string()
         return {
-            "nome": f"Hóspede {name}",
+            "nome_completo": f"Hóspede {name}",
             "email": DataGenerator.generate_email("hospede"),
             "telefone": DataGenerator.generate_phone(),
             "cpf": DataGenerator.generate_cpf(),
-            "endereco": f"Rua {name}, {random.randint(1, 999)}"
+            "senha": "senha123456"
         }
     
     @staticmethod
-    def generate_admin_data(perfil="Standard"):
+    def generate_admin_data(perfil="Padrão"):
         """Gera dados completos de administrador para testes"""
         name = DataGenerator.generate_random_string()
         return {
-            "nome": f"Admin {name}",
+            "nome_completo": f"Admin {name}",
             "email": DataGenerator.generate_email("admin"),
-            "senha": "senha123",
+            "senha": "senha123456",
             "perfil": perfil
         }
 
@@ -180,12 +180,12 @@ class ScreenshotHelper:
 # Constantes úteis para testes
 TEST_URLS = {
     "BASE": "http://localhost:5000",
-    "LOGIN": "http://localhost:5000/admin_login",
-    "PANEL": "http://localhost:5000/admin_painel",
-    "GUESTS": "http://localhost:5000/admin_hospedes",
-    "ADMINS": "http://localhost:5000/admin_administradores",
-    "GUEST_REGISTER": "http://localhost:5000/cadastro_hospede",
-    "ADMIN_REGISTER": "http://localhost:5000/cadastro_admin"
+    "LOGIN": "http://localhost:5000/admin/login",
+    "PANEL": "http://localhost:5000/admin/painel",
+    "GUESTS": "http://localhost:5000/admin/hospedes",
+    "ADMINS": "http://localhost:5000/admin/administradores",
+    "GUEST_REGISTER": "http://localhost:5000/hospede/cadastro",
+    "ADMIN_REGISTER": "http://localhost:5000/admin/administrador/cadastro"
 }
 
 DEFAULT_TIMEOUTS = {

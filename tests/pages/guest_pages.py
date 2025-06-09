@@ -9,18 +9,18 @@ class GuestRegistrationPage(BasePage):
     """Page Object para registro de hóspedes"""
     
     # Locators
-    NOME_FIELD = (By.ID, "nome")
+    NOME_FIELD = (By.ID, "nome_completo")
     EMAIL_FIELD = (By.ID, "email")
     TELEFONE_FIELD = (By.ID, "telefone")
     CPF_FIELD = (By.ID, "cpf")
-    ENDERECO_FIELD = (By.ID, "endereco")
+    SENHA_FIELD = (By.ID, "senha")
     SUBMIT_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
     SUCCESS_MESSAGE = (By.CLASS_NAME, "alert-success")
     ERROR_MESSAGE = (By.CLASS_NAME, "alert-danger")
     
     def __init__(self, driver):
         super().__init__(driver)
-        self.url = "http://localhost:5000/cadastro_hospede"
+        self.url = "http://localhost:5000/hospede/cadastro"
     
     def navigate(self):
         """Navega para página de registro de hóspede"""
@@ -29,11 +29,11 @@ class GuestRegistrationPage(BasePage):
     
     def fill_form(self, guest_data):
         """Preenche formulário de registro"""
-        self.send_keys(self.NOME_FIELD, guest_data.get("nome", ""))
+        self.send_keys(self.NOME_FIELD, guest_data.get("nome_completo", ""))
         self.send_keys(self.EMAIL_FIELD, guest_data.get("email", ""))
         self.send_keys(self.TELEFONE_FIELD, guest_data.get("telefone", ""))
         self.send_keys(self.CPF_FIELD, guest_data.get("cpf", ""))
-        self.send_keys(self.ENDERECO_FIELD, guest_data.get("endereco", ""))
+        self.send_keys(self.SENHA_FIELD, guest_data.get("senha", ""))
     
     def submit_form(self):
         """Submete o formulário"""
@@ -58,17 +58,17 @@ class GuestListPage(BasePage):
     """Page Object para listagem de hóspedes"""
     
     # Locators
-    GUESTS_TABLE = (By.ID, "tabelaHospedes")
-    SEARCH_FIELD = (By.ID, "busca")
-    SEARCH_BUTTON = (By.CSS_SELECTOR, "button[onclick='buscarHospedes()']")
-    GUEST_ROWS = (By.CSS_SELECTOR, "#tabelaHospedes tbody tr")
-    EDIT_BUTTONS = (By.CSS_SELECTOR, ".btn-warning")
-    DELETE_BUTTONS = (By.CSS_SELECTOR, ".btn-danger")
-    NO_RESULTS_MESSAGE = (By.ID, "semResultados")
+    GUESTS_TABLE = (By.CSS_SELECTOR, ".table")  # Primeira tabela na página
+    SEARCH_FIELD = (By.ID, "nome")
+    SEARCH_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
+    GUEST_ROWS = (By.CSS_SELECTOR, ".table tbody tr")
+    EDIT_BUTTONS = (By.CSS_SELECTOR, ".btn-outline-primary")
+    DELETE_BUTTONS = (By.CSS_SELECTOR, ".btn-outline-danger")
+    NO_RESULTS_MESSAGE = (By.XPATH, "//h5[contains(text(), 'Nenhum hóspede encontrado')]")
     
     def __init__(self, driver):
         super().__init__(driver)
-        self.url = "http://localhost:5000/admin_hospedes"
+        self.url = "http://localhost:5000/admin/hospedes"
     
     def navigate(self):
         """Navega para página de listagem de hóspedes"""
@@ -84,20 +84,19 @@ class GuestListPage(BasePage):
     def get_guest_count(self):
         """Retorna número de hóspedes na lista"""
         rows = self.find_elements(self.GUEST_ROWS)
-        # Filtra apenas linhas com dados (não mensagens de "sem resultados")
-        return len([row for row in rows if row.find_elements(By.TAG_NAME, "td")])
+        return len(rows)
     
     def get_guest_data_by_index(self, index):
         """Obtém dados do hóspede por índice na tabela"""
         rows = self.find_elements(self.GUEST_ROWS)
         if index < len(rows):
             cells = rows[index].find_elements(By.TAG_NAME, "td")
-            if len(cells) >= 5:
+            if len(cells) >= 7:  # ID, Nome, Email, CPF, Telefone, Status, Data, Ações
                 return {
-                    "nome": cells[0].text,
-                    "email": cells[1].text,
-                    "telefone": cells[2].text,
-                    "cpf": cells[3].text
+                    "nome_completo": cells[1].text,  # Segunda coluna é o nome
+                    "email": cells[2].text,          # Terceira coluna é o email
+                    "telefone": cells[4].text,       # Quinta coluna é o telefone
+                    "cpf": cells[3].text             # Quarta coluna é o CPF
                 }
         return None
     
@@ -118,21 +117,22 @@ class GuestEditPage(BasePage):
     """Page Object para edição de hóspedes"""
     
     # Locators
-    NOME_FIELD = (By.ID, "nome")
+    NOME_FIELD = (By.ID, "nome_completo")
     EMAIL_FIELD = (By.ID, "email")
     TELEFONE_FIELD = (By.ID, "telefone")
     CPF_FIELD = (By.ID, "cpf")
-    ENDERECO_FIELD = (By.ID, "endereco")
+    SENHA_FIELD = (By.ID, "senha")
     SUBMIT_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
     CANCEL_BUTTON = (By.CSS_SELECTOR, ".btn-secondary")
     
     def fill_form(self, guest_data):
         """Preenche formulário de edição"""
-        self.send_keys(self.NOME_FIELD, guest_data.get("nome", ""))
+        self.send_keys(self.NOME_FIELD, guest_data.get("nome_completo", ""))
         self.send_keys(self.EMAIL_FIELD, guest_data.get("email", ""))
         self.send_keys(self.TELEFONE_FIELD, guest_data.get("telefone", ""))
         self.send_keys(self.CPF_FIELD, guest_data.get("cpf", ""))
-        self.send_keys(self.ENDERECO_FIELD, guest_data.get("endereco", ""))
+        if guest_data.get("senha"):
+            self.send_keys(self.SENHA_FIELD, guest_data["senha"])
     
     def submit_form(self):
         """Submete o formulário de edição"""
@@ -145,9 +145,8 @@ class GuestEditPage(BasePage):
     def get_current_data(self):
         """Obtém dados atuais do formulário"""
         return {
-            "nome": self.find_element(self.NOME_FIELD).get_attribute("value"),
+            "nome_completo": self.find_element(self.NOME_FIELD).get_attribute("value"),
             "email": self.find_element(self.EMAIL_FIELD).get_attribute("value"),
             "telefone": self.find_element(self.TELEFONE_FIELD).get_attribute("value"),
-            "cpf": self.find_element(self.CPF_FIELD).get_attribute("value"),
-            "endereco": self.find_element(self.ENDERECO_FIELD).get_attribute("value")
+            "cpf": self.find_element(self.CPF_FIELD).get_attribute("value")
         } 

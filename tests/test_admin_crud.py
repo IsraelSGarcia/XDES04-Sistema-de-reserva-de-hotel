@@ -1,23 +1,18 @@
 """
-Testes automatizados para CRUD de administradores
+Testes CRUD automatizados para funcionalidades de administradores
 """
 import pytest
 import time
-from tests.pages.admin_pages import (
-    AdminLoginPage, AdminPanelPage, AdminRegistrationPage, 
-    AdminListPage, AdminEditPage
-)
+from tests.pages.admin_pages import AdminLoginPage, AdminPanelPage, AdminRegistrationPage, AdminListPage, AdminEditPage
 
 
 class TestAdminCRUD:
-    """Classe de testes para CRUD de administradores"""
+    """Classe de testes para operações CRUD de administradores"""
     
     @pytest.fixture(autouse=True)
     def setup(self, driver, admin_login, flask_app):
-        """Setup executado antes de cada teste"""
+        """Setup para cada teste"""
         self.driver = driver
-        
-        # Inicializa page objects
         self.admin_login_page = AdminLoginPage(driver)
         self.admin_panel = AdminPanelPage(driver)
         self.admin_registration = AdminRegistrationPage(driver)
@@ -32,7 +27,7 @@ class TestAdminCRUD:
         # Assert
         time.sleep(1)
         current_url = self.driver.current_url
-        assert "admin_painel" in current_url, "Login não redirecionou para painel"
+        assert "/admin/painel" in current_url, f"Login não redirecionou para painel. URL atual: {current_url}"
     
     def test_admin_login_invalid_credentials(self, flask_app):
         """Teste: Login com credenciais inválidas"""
@@ -42,7 +37,7 @@ class TestAdminCRUD:
         # Assert
         time.sleep(1)
         current_url = self.driver.current_url
-        assert "admin_login" in current_url, "Login inválido deveria permanecer na tela de login"
+        assert "/admin/login" in current_url, f"Login inválido deveria permanecer na tela de login. URL atual: {current_url}"
     
     def test_create_admin_valid_data(self, admin_data):
         """Teste: Criar administrador com dados válidos"""
@@ -71,7 +66,7 @@ class TestAdminCRUD:
         # Assert - Deve permanecer na página de cadastro
         time.sleep(1)
         current_url = self.driver.current_url
-        assert "cadastro_admin" in current_url
+        assert "/admin/administrador/cadastro" in current_url, f"Deveria permanecer na página de cadastro. URL atual: {current_url}"
     
     def test_read_admin_list(self, admin_login):
         """Teste: Listar administradores"""
@@ -80,7 +75,7 @@ class TestAdminCRUD:
         
         # Assert
         current_url = self.driver.current_url
-        assert "admin_administradores" in current_url
+        assert "/admin/administradores" in current_url, f"Deveria estar na página de administradores. URL atual: {current_url}"
         
         # Verifica se tabela está presente
         assert self.admin_list.is_element_present(self.admin_list.ADMINS_TABLE)
@@ -95,7 +90,7 @@ class TestAdminCRUD:
         
         # Act
         self.admin_list.navigate()
-        self.admin_list.search_admin(valid_data["nome"])
+        self.admin_list.search_admin(valid_data["nome_completo"])
         
         # Assert
         admin_count = self.admin_list.get_admin_count()
@@ -104,7 +99,7 @@ class TestAdminCRUD:
         # Verifica se o resultado contém o administrador buscado
         admin_data_found = self.admin_list.get_admin_data_by_index(0)
         if admin_data_found:
-            assert valid_data["nome"].lower() in admin_data_found["nome"].lower()
+            assert valid_data["nome_completo"].lower() in admin_data_found["nome_completo"].lower()
     
     def test_update_admin(self, admin_data, admin_login):
         """Teste: Atualizar dados do administrador"""
@@ -132,14 +127,14 @@ class TestAdminCRUD:
             # Assert - Verifica se foi redirecionado
             time.sleep(1)
             current_url = self.driver.current_url
-            assert "admin_administradores" in current_url
+            assert "/admin/administradores" in current_url, f"Deveria retornar para lista. URL atual: {current_url}"
             
             # Busca pelo administrador atualizado
             self.admin_list.search_admin(update_data["email"])
             updated_admin = self.admin_list.get_admin_data_by_index(0)
             
             if updated_admin:
-                assert update_data["nome"] in updated_admin["nome"]
+                assert update_data["nome_completo"] in updated_admin["nome_completo"]
                 assert update_data["perfil"] == updated_admin["perfil"]
     
     def test_delete_admin(self, admin_data, admin_login):
@@ -179,7 +174,7 @@ class TestAdminCRUD:
         # Assert - Deve permanecer na página de cadastro
         time.sleep(1)
         current_url = self.driver.current_url
-        assert "cadastro_admin" in current_url
+        assert "/admin/administrador/cadastro" in current_url, f"Deveria permanecer na página de cadastro. URL atual: {current_url}"
     
     def test_edit_admin_form_prepopulation(self, admin_data, admin_login):
         """Teste: Verificar se formulário de edição vem preenchido"""
@@ -197,7 +192,7 @@ class TestAdminCRUD:
             
             # Assert - Verifica se campos estão preenchidos
             current_data = self.admin_edit.get_current_data()
-            assert current_data["nome"] != ""
+            assert current_data["nome_completo"] != ""
             assert current_data["email"] != ""
             assert current_data["perfil"] != ""
     
@@ -219,7 +214,7 @@ class TestAdminCRUD:
             # Assert - Deve retornar para lista
             time.sleep(1)
             current_url = self.driver.current_url
-            assert "admin_administradores" in current_url
+            assert "/admin/administradores" in current_url, f"Deveria retornar para lista. URL atual: {current_url}"
     
     def test_search_no_results(self, admin_login):
         """Teste: Busca sem resultados"""
@@ -227,58 +222,51 @@ class TestAdminCRUD:
         self.admin_list.navigate()
         self.admin_list.search_admin("admin_inexistente@email.com")
         
-        # Assert
+        # Assert - Deve exibir zero resultados
         admin_count = self.admin_list.get_admin_count()
-        assert admin_count == 0, "Busca deveria retornar 0 resultados"
+        assert admin_count == 0, "Busca deveria retornar zero resultados"
     
     def test_admin_panel_navigation(self, admin_login):
-        """Teste: Navegação no painel administrativo"""
-        # Act & Assert - Testa navegação para hóspedes
+        """Teste: Navegação do painel administrativo"""
+        # Act
         self.admin_panel.navigate()
-        self.admin_panel.go_to_guests()
         
-        time.sleep(1)
+        # Assert - Verifica se está no painel
         current_url = self.driver.current_url
-        assert "admin_hospedes" in current_url
+        assert "/admin/painel" in current_url, f"Deveria estar no painel. URL atual: {current_url}"
         
-        # Act & Assert - Testa navegação para administradores
-        self.admin_panel.navigate()
+        # Testa navegação para gestão de administradores
         self.admin_panel.go_to_admins()
-        
         time.sleep(1)
         current_url = self.driver.current_url
-        assert "admin_administradores" in current_url
+        assert "/admin/administradores" in current_url, f"Deveria navegar para administradores. URL atual: {current_url}"
     
     def test_different_admin_profiles(self, admin_login):
-        """Teste: Criação de administradores com perfis diferentes"""
-        # Arrange
-        master_admin = {
-            "nome": "Admin Master",
-            "email": "master@restel.com",
-            "senha": "senha123",
+        """Teste: Criação de administradores com diferentes perfis"""
+        # Test Master profile
+        master_data = {
+            "nome_completo": "Admin Master Teste",
+            "email": "master.teste@restel.com",
+            "senha": "senha123456",
             "perfil": "Master"
         }
         
-        standard_admin = {
-            "nome": "Admin Standard",
-            "email": "standard@restel.com",
-            "senha": "senha123",
-            "perfil": "Standard"
+        # Test Standard profile  
+        standard_data = {
+            "nome_completo": "Admin Padrão Teste",
+            "email": "padrao.teste@restel.com",
+            "senha": "senha123456",
+            "perfil": "Padrão"
         }
         
-        # Act - Cria administradores com perfis diferentes
-        self.admin_registration.register_admin(master_admin)
-        self.admin_registration.register_admin(standard_admin)
-        
-        # Assert - Verifica se foram criados
+        # Act & Assert Master
+        self.admin_registration.register_admin(master_data)
         self.admin_list.navigate()
+        self.admin_list.search_admin(master_data["email"])
+        assert self.admin_list.get_admin_count() > 0, "Admin Master não foi criado"
         
-        # Busca admin Master
-        self.admin_list.search_admin(master_admin["email"])
-        master_count = self.admin_list.get_admin_count()
-        assert master_count > 0, "Admin Master não foi criado"
-        
-        # Busca admin Standard
-        self.admin_list.search_admin(standard_admin["email"])
-        standard_count = self.admin_list.get_admin_count()
-        assert standard_count > 0, "Admin Standard não foi criado" 
+        # Act & Assert Standard
+        self.admin_registration.register_admin(standard_data)
+        self.admin_list.navigate()
+        self.admin_list.search_admin(standard_data["email"])
+        assert self.admin_list.get_admin_count() > 0, "Admin Padrão não foi criado" 

@@ -16,7 +16,7 @@ class AdminLoginPage(BasePage):
     
     def __init__(self, driver):
         super().__init__(driver)
-        self.url = "http://localhost:5000/admin_login"
+        self.url = "http://localhost:5000/admin/login"
     
     def navigate(self):
         """Navega para página de login"""
@@ -43,13 +43,13 @@ class AdminPanelPage(BasePage):
     """Page Object para painel administrativo"""
     
     # Locators
-    GUESTS_CARD = (By.CSS_SELECTOR, "a[href='/admin_hospedes']")
-    ADMINS_CARD = (By.CSS_SELECTOR, "a[href='/admin_administradores']")
-    LOGOUT_BUTTON = (By.CSS_SELECTOR, "a[href='/logout']")
+    GUESTS_CARD = (By.CSS_SELECTOR, "a[href='/admin/hospedes']")
+    ADMINS_CARD = (By.CSS_SELECTOR, "a[href='/admin/administradores']")
+    LOGOUT_BUTTON = (By.CSS_SELECTOR, "a[href='/admin/logout']")
     
     def __init__(self, driver):
         super().__init__(driver)
-        self.url = "http://localhost:5000/admin_painel"
+        self.url = "http://localhost:5000/admin/painel"
     
     def navigate(self):
         """Navega para painel administrativo"""
@@ -73,7 +73,7 @@ class AdminRegistrationPage(BasePage):
     """Page Object para registro de administradores"""
     
     # Locators
-    NOME_FIELD = (By.ID, "nome")
+    NOME_FIELD = (By.ID, "nome_completo")
     EMAIL_FIELD = (By.ID, "email")
     SENHA_FIELD = (By.ID, "senha")
     PERFIL_FIELD = (By.ID, "perfil")
@@ -83,7 +83,7 @@ class AdminRegistrationPage(BasePage):
     
     def __init__(self, driver):
         super().__init__(driver)
-        self.url = "http://localhost:5000/cadastro_admin"
+        self.url = "http://localhost:5000/admin/administrador/cadastro"
     
     def navigate(self):
         """Navega para página de registro de administrador"""
@@ -92,7 +92,7 @@ class AdminRegistrationPage(BasePage):
     
     def fill_form(self, admin_data):
         """Preenche formulário de registro"""
-        self.send_keys(self.NOME_FIELD, admin_data.get("nome", ""))
+        self.send_keys(self.NOME_FIELD, admin_data.get("nome_completo", ""))
         self.send_keys(self.EMAIL_FIELD, admin_data.get("email", ""))
         self.send_keys(self.SENHA_FIELD, admin_data.get("senha", ""))
         if admin_data.get("perfil"):
@@ -121,17 +121,17 @@ class AdminListPage(BasePage):
     """Page Object para listagem de administradores"""
     
     # Locators
-    ADMINS_TABLE = (By.ID, "tabelaAdministradores")
-    SEARCH_FIELD = (By.ID, "busca")
-    SEARCH_BUTTON = (By.CSS_SELECTOR, "button[onclick='buscarAdministradores()']")
-    ADMIN_ROWS = (By.CSS_SELECTOR, "#tabelaAdministradores tbody tr")
-    EDIT_BUTTONS = (By.CSS_SELECTOR, ".btn-warning")
-    DELETE_BUTTONS = (By.CSS_SELECTOR, ".btn-danger")
-    NO_RESULTS_MESSAGE = (By.ID, "semResultados")
+    ADMINS_TABLE = (By.CSS_SELECTOR, ".table")  # Primeira tabela na página
+    SEARCH_FIELD = (By.ID, "nome")
+    SEARCH_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
+    ADMIN_ROWS = (By.CSS_SELECTOR, ".table tbody tr")
+    EDIT_BUTTONS = (By.CSS_SELECTOR, ".btn-outline-primary")
+    DELETE_BUTTONS = (By.CSS_SELECTOR, ".btn-outline-danger")
+    NO_RESULTS_MESSAGE = (By.XPATH, "//h5[contains(text(), 'Nenhum administrador encontrado')]")
     
     def __init__(self, driver):
         super().__init__(driver)
-        self.url = "http://localhost:5000/admin_administradores"
+        self.url = "http://localhost:5000/admin/administradores"
     
     def navigate(self):
         """Navega para página de listagem de administradores"""
@@ -147,19 +147,18 @@ class AdminListPage(BasePage):
     def get_admin_count(self):
         """Retorna número de administradores na lista"""
         rows = self.find_elements(self.ADMIN_ROWS)
-        # Filtra apenas linhas com dados (não mensagens de "sem resultados")
-        return len([row for row in rows if row.find_elements(By.TAG_NAME, "td")])
+        return len(rows)
     
     def get_admin_data_by_index(self, index):
         """Obtém dados do administrador por índice na tabela"""
         rows = self.find_elements(self.ADMIN_ROWS)
         if index < len(rows):
             cells = rows[index].find_elements(By.TAG_NAME, "td")
-            if len(cells) >= 4:
+            if len(cells) >= 6:  # ID, Nome, Email, Perfil, Status, Data, Ações
                 return {
-                    "nome": cells[0].text,
-                    "email": cells[1].text,
-                    "perfil": cells[2].text
+                    "nome_completo": cells[1].text,  # Segunda coluna é o nome
+                    "email": cells[2].text,          # Terceira coluna é o email
+                    "perfil": cells[3].text          # Quarta coluna é o perfil
                 }
         return None
     
@@ -180,7 +179,7 @@ class AdminEditPage(BasePage):
     """Page Object para edição de administradores"""
     
     # Locators
-    NOME_FIELD = (By.ID, "nome")
+    NOME_FIELD = (By.ID, "nome_completo")
     EMAIL_FIELD = (By.ID, "email")
     SENHA_FIELD = (By.ID, "senha")
     PERFIL_FIELD = (By.ID, "perfil")
@@ -189,7 +188,7 @@ class AdminEditPage(BasePage):
     
     def fill_form(self, admin_data):
         """Preenche formulário de edição"""
-        self.send_keys(self.NOME_FIELD, admin_data.get("nome", ""))
+        self.send_keys(self.NOME_FIELD, admin_data.get("nome_completo", ""))
         self.send_keys(self.EMAIL_FIELD, admin_data.get("email", ""))
         if admin_data.get("senha"):
             self.send_keys(self.SENHA_FIELD, admin_data["senha"])
@@ -210,7 +209,7 @@ class AdminEditPage(BasePage):
         selected_option = perfil_element.find_element(By.CSS_SELECTOR, "option:checked")
         
         return {
-            "nome": self.find_element(self.NOME_FIELD).get_attribute("value"),
+            "nome_completo": self.find_element(self.NOME_FIELD).get_attribute("value"),
             "email": self.find_element(self.EMAIL_FIELD).get_attribute("value"),
             "perfil": selected_option.get_attribute("value")
         } 

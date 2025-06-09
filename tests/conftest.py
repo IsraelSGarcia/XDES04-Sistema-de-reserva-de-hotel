@@ -134,7 +134,7 @@ def wait(driver):
 @pytest.fixture(scope="function")
 def admin_login(driver, wait):
     """Fixture para realizar login de administrador antes dos testes"""
-    driver.get("http://localhost:5000/admin_login")
+    driver.get("http://localhost:5000/admin/login")
     
     # Preenche dados de login
     email_field = wait.until(EC.presence_of_element_located((By.ID, "email")))
@@ -148,7 +148,7 @@ def admin_login(driver, wait):
     submit_button.click()
     
     # Aguarda redirecionamento para painel admin
-    wait.until(EC.url_contains("/admin_painel"))
+    wait.until(EC.url_contains("/admin/painel"))
     
     return driver
 
@@ -159,25 +159,25 @@ def guest_data():
     """Dados para teste de hóspedes"""
     return {
         "valid": {
-            "nome": "João Silva",
+            "nome_completo": "João Silva",
             "email": "joao.silva@email.com",
             "telefone": "(11) 99999-9999",
             "cpf": "123.456.789-00",
-            "endereco": "Rua das Flores, 123"
+            "senha": "senha123456"
         },
         "invalid": {
-            "nome": "",
+            "nome_completo": "",
             "email": "email_invalido",
             "telefone": "123",
             "cpf": "cpf_invalido",
-            "endereco": ""
+            "senha": "123"
         },
         "update": {
-            "nome": "João Silva Santos",
+            "nome_completo": "João Silva Santos",
             "email": "joao.santos@email.com",
             "telefone": "(11) 88888-8888",
             "cpf": "123.456.789-00",
-            "endereco": "Rua das Rosas, 456"
+            "senha": "nova_senha123"
         }
     }
 
@@ -187,21 +187,21 @@ def admin_data():
     """Dados para teste de administradores"""
     return {
         "valid": {
-            "nome": "Maria Admin",
+            "nome_completo": "Maria Admin",
             "email": "maria.admin@restel.com",
-            "senha": "senha123",
-            "perfil": "Standard"
+            "senha": "senha123456",
+            "perfil": "Padrão"
         },
         "invalid": {
-            "nome": "",
+            "nome_completo": "",
             "email": "email_invalido",
             "senha": "123",
             "perfil": ""
         },
         "update": {
-            "nome": "Maria Administradora",
+            "nome_completo": "Maria Administradora",
             "email": "maria.admin@restel.com",
-            "senha": "nova_senha123",
+            "senha": "nova_senha123456",
             "perfil": "Master"
         }
     } 
