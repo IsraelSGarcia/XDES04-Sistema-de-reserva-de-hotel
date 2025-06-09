@@ -1,0 +1,49 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-7.4.0, pluggy-1.6.0 -- C:\Users\Israel\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.10', 'Platform': 'Windows-11-10.0.26100-SP0', 'Packages': {'pytest': '7.4.0', 'pluggy': '1.6.0'}, 'Plugins': {'html': '3.2.0', 'metadata': '3.1.1'}}
+rootdir: C:\Users\Israel\Desktop\restel
+configfile: pytest.ini
+plugins: html-3.2.0, metadata-3.1.1
+collecting ... collected 1 item
+
+test_admin_crud.py::TestAdminCRUD::test_create_admin_valid_data Flask detectado rodando em localhost:5000
+Webdriver-manager falhou: No such driver version 137.0.7151.69 for win32
+FAILED
+
+================================== FAILURES ===================================
+_________________ TestAdminCRUD.test_create_admin_valid_data __________________
+test_admin_crud.py:53: in test_create_admin_valid_data
+    self.admin_list.search_admin(valid_data["email"])
+pages\admin_pages.py:143: in search_admin
+    self.send_keys(self.SEARCH_FIELD, search_term)
+pages\base_page.py:49: in send_keys
+    element = self.wait.until(EC.presence_of_element_located(locator))
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\selenium\webdriver\support\wait.py:95: in until
+    raise TimeoutException(message, screen, stacktrace)
+E   selenium.common.exceptions.TimeoutException: Message: 
+E   Stacktrace:
+E   	GetHandleVerifier [0x0x7ff7e1b3fea5+79173]
+E   	GetHandleVerifier [0x0x7ff7e1b3ff00+79264]
+E   	(No symbol) [0x0x7ff7e18f9e5a]
+E   	(No symbol) [0x0x7ff7e1950586]
+E   	(No symbol) [0x0x7ff7e195083c]
+E   	(No symbol) [0x0x7ff7e19a4247]
+E   	(No symbol) [0x0x7ff7e19789af]
+E   	(No symbol) [0x0x7ff7e19a100d]
+E   	(No symbol) [0x0x7ff7e1978743]
+E   	(No symbol) [0x0x7ff7e19414c1]
+E   	(No symbol) [0x0x7ff7e1942253]
+E   	GetHandleVerifier [0x0x7ff7e1e0a2dd+3004797]
+E   	GetHandleVerifier [0x0x7ff7e1e0472d+2981325]
+E   	GetHandleVerifier [0x0x7ff7e1e23380+3107360]
+E   	GetHandleVerifier [0x0x7ff7e1b5aa2e+188622]
+E   	GetHandleVerifier [0x0x7ff7e1b622bf+219487]
+E   	GetHandleVerifier [0x0x7ff7e1b48df4+115860]
+E   	GetHandleVerifier [0x0x7ff7e1b48fa9+116297]
+E   	GetHandleVerifier [0x0x7ff7e1b2f558+11256]
+E   	BaseThreadInitThunk [0x0x7ff9090be8d7+23]
+E   	RtlUserThreadStart [0x0x7ff90a37c5dc+44]
+=========================== short test summary info ===========================
+FAILED test_admin_crud.py::TestAdminCRUD::test_create_admin_valid_data - sele...
+============================= 1 failed in 23.97s ==============================

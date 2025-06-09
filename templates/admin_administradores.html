@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Administradores - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-user-cog me-2"></i>Gerenciamento de Administradores
+                    </h1>
+                    <p class="text-muted mb-0">Consultar e gerenciar administradores do sistema - Acesso Master</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('cadastro_administrador') }}" class="btn btn-success">
+                        <i class="fas fa-user-plus me-1"></i>Novo Administrador
+                    </a>
+                    <a href="{{ url_for('painel_admin') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Voltar ao Painel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Administradores -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Administradores Cadastrados
+                        <span class="badge bg-primary">{{ administradores|length }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if administradores %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nome Completo</th>
+                                        <th>Email</th>
+                                        <th>Perfil</th>
+                                        <th>Status</th>
+                                        <th>Data Cadastro</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for admin in administradores %}
+                                    <tr>
+                                        <td><strong>#{{ admin.id }}</strong></td>
+                                        <td>{{ admin.nome_completo }}</td>
+                                        <td>{{ admin.email }}</td>
+                                        <td>
+                                            {% if admin.perfil == 'Master' %}
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="fas fa-crown me-1"></i>Master
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-user-tie me-1"></i>Padrão
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if admin.ativo %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>Ativo
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times me-1"></i>Inativo
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ admin.data_cadastro.split(' ')[0] if admin.data_cadastro else 'N/A' }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{{ url_for('editar_administrador', admin_id=admin.id) }}" 
+                                                   class="btn btn-outline-primary" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% if admin.ativo and admin.id != session.admin_id %}
+                                                <button type="button" class="btn btn-outline-danger" 
+                                                        onclick="confirmarExclusao({{ admin.id }}, '{{ admin.nome_completo }}')"
+                                                        title="Inativar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                {% elif admin.id == session.admin_id %}
+                                                <button type="button" class="btn btn-outline-secondary" 
+                                                        title="Não é possível inativar sua própria conta" disabled>
+                                                    <i class="fas fa-ban"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-user-cog fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhum administrador encontrado</h5>
+                            <p class="text-muted">Erro no sistema - deve haver pelo menos um administrador Master</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Inativação -->
+<div class="modal fade" id="modalExclusao" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Inativação
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja inativar o administrador <strong id="nomeAdmin"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Esta operação irá inativar o administrador. Os dados permanecerão no sistema para auditoria.
+                </div>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Atenção:</strong> O administrador perderá imediatamente o acesso ao sistema!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <form id="formExclusao" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-ban me-1"></i>Inativar Administrador
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+// Função para confirmar exclusão
+function confirmarExclusao(adminId, nomeAdmin) {
+    document.getElementById('nomeAdmin').textContent = nomeAdmin;
+    document.getElementById('formExclusao').action = `/admin/administrador/${adminId}/excluir`;
+    new bootstrap.Modal(document.getElementById('modalExclusao')).show();
+}
+</script>
+{% endblock %}
+{% endblock %} 

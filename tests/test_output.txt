@@ -1,0 +1,28 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-7.4.0, pluggy-1.6.0 -- C:\Users\Israel\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.10', 'Platform': 'Windows-11-10.0.26100-SP0', 'Packages': {'pytest': '7.4.0', 'pluggy': '1.6.0'}, 'Plugins': {'html': '3.2.0', 'metadata': '3.1.1'}}
+rootdir: C:\Users\Israel\Desktop\restel
+configfile: pytest.ini
+plugins: html-3.2.0, metadata-3.1.1
+collecting ... collected 1 item
+
+test_admin_crud.py::TestAdminCRUD::test_create_admin_valid_data ERROR
+
+=================================== ERRORS ====================================
+________ ERROR at setup of TestAdminCRUD.test_create_admin_valid_data _________
+conftest.py:58: in flask_app
+    print("\u2705 Flask detectado rodando em localhost:5000")
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py:19: in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+E   UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+conftest.py:61: in flask_app
+    print(f"\U0001f504 Tentativa {i+1}/10: Aguardando Flask...")
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py:19: in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+E   UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f504' in position 0: character maps to <undefined>
+=========================== short test summary info ===========================
+ERROR test_admin_crud.py::TestAdminCRUD::test_create_admin_valid_data - Unico...
+============================== 1 error in 2.09s ===============================

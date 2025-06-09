@@ -1,0 +1,131 @@
+{
+  "id": "e7c4f74a-1b4e-4b2a-8f8d-6e4b8d7c4a1e",
+  "version": "2.0",
+  "name": "Restel-Tests",
+  "url": "http://127.0.0.1:5000",
+  "tests": [
+    {
+      "id": "c8e8c8e8-c8e8-c8e8-c8e8-c8e8c8e8c8e8",
+      "name": "Admin Login Success",
+      "commands": [
+        {
+          "id": "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
+          "comment": "",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "b2c3d4e5-f6a7-b8c9-d0e1-f2a3b4c5d6a7",
+          "comment": "",
+          "command": "setWindowSize",
+          "target": "1296x696",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "a5a5a5a5-a5a5-a5a5-a5a5-a5a5a5a5a5a5",
+          "comment": "Wait for the link to be visible before clicking",
+          "command": "waitForElementVisible",
+          "target": "linkText=Acessar Painel",
+          "targets": [],
+          "value": "30000"
+        },
+        {
+          "id": "c3d4e5f6-a7b8-c9d0-e1f2-a3b4c5d6a7b8",
+          "comment": "",
+          "command": "click",
+          "target": "linkText=Acessar Painel",
+          "targets": [
+            ["linkText=Acessar Painel", "linkText"],
+            ["css=.btn-secondary", "css:finder"],
+            ["xpath=//a[contains(text(),'Acessar Painel')]", "xpath:link"],
+            ["xpath=//div[@id='navbarNav']/div/a", "xpath:idRelative"],
+            ["xpath=//a[contains(@href, '/login')]", "xpath:href"],
+            ["xpath=//div/a", "xpath:position"],
+            ["xpath=//a[contains(.,'Acessar Painel')]", "xpath:innerText"]
+          ],
+          "value": ""
+        },
+        {
+          "id": "d4e5f6a7-b8c9-d0e1-f2a3-b4c5d6a7b8c9",
+          "comment": "",
+          "command": "assertTitle",
+          "target": "Restel - Login",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "e5f6a7b8-c9d0-e1f2-a3b4-c5d6a7b8c9d0",
+          "comment": "",
+          "command": "type",
+          "target": "id=email",
+          "targets": [
+            ["id=email", "id"],
+            ["name=email", "name"],
+            ["css=#email", "css:finder"],
+            ["xpath=//input[@id='email']", "xpath:attributes"],
+            ["xpath=//input", "xpath:position"]
+          ],
+          "value": "master@restel.com"
+        },
+        {
+          "id": "f6a7b8c9-d0e1-f2a3-b4c5-d6a7b8c9d0e1",
+          "comment": "",
+          "command": "type",
+          "target": "id=senha",
+          "targets": [
+            ["id=senha", "id"],
+            ["name=senha", "name"],
+            ["css=#senha", "css:finder"],
+            ["xpath=//input[@id='senha']", "xpath:attributes"],
+            ["xpath=//div[2]/input", "xpath:position"]
+          ],
+          "value": "master123"
+        },
+        {
+          "id": "a7b8c9d0-e1f2-a3b4-c5d6-a7b8c9d0e1f2",
+          "comment": "",
+          "command": "click",
+          "target": "css=.btn",
+          "targets": [
+            ["css=.btn", "css:finder"],
+            ["xpath=//button[@type='submit']", "xpath:attributes"],
+            ["xpath=//form/button", "xpath:position"],
+            ["xpath=//button[contains(.,'Login')]", "xpath:innerText"]
+          ],
+          "value": ""
+        },
+        {
+          "id": "b8c9d0e1-f2a3-b4c5-d6a7-b8c9d0e1f2a3",
+          "comment": "",
+          "command": "assertText",
+          "target": "css=h1",
+          "targets": [
+            ["css=h1", "css:finder"],
+            ["xpath=//h1", "xpath:position"],
+            ["xpath=//h1[contains(.,'Painel do Administrador')]", "xpath:innerText"]
+          ],
+          "value": "Painel do Administrador"
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "f8d8f8d8-f8d8-f8d8-f8d8-f8d8f8d8f8d8",
+      "name": "Default Suite",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "c8e8c8e8-c8e8-c8e8-c8e8-c8e8c8e8c8e8"
+      ]
+    }
+  ],
+  "urls": [
+    "http://127.0.0.1:5000/"
+  ],
+  "plugins": []
+} 

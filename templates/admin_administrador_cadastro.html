@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro de Administrador - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-user-plus me-2"></i>Cadastro de Administrador
+                    </h1>
+                    <p class="text-muted mb-0">Criar novo administrador no sistema</p>
+                </div>
+                <a href="{{ url_for('gerenciar_administradores') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar à Lista
+                </a>
+            </div>
+
+            <!-- Formulário de Cadastro -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-user-shield me-2"></i>Dados do Novo Administrador
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('processar_cadastro_administrador') }}">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="nome_completo" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Nome Completo *
+                                </label>
+                                <input type="text" class="form-control" id="nome_completo" name="nome_completo" 
+                                       placeholder="Digite o nome completo do administrador" required maxlength="100">
+                                <div class="form-text">Nome completo do administrador</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Email *
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="admin@exemplo.com" required maxlength="100">
+                                <div class="form-text">Email único para login no sistema</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="perfil" class="form-label">
+                                    <i class="fas fa-user-cog me-1"></i>Perfil de Acesso *
+                                </label>
+                                <select class="form-select" id="perfil" name="perfil" required>
+                                    <option value="">Selecione o perfil</option>
+                                    <option value="Master">Master - Acesso Total</option>
+                                    <option value="Padrão">Padrão - Operacional</option>
+                                </select>
+                                <div class="form-text">Nível de permissão no sistema</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="senha" class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Senha *
+                                </label>
+                                <input type="password" class="form-control" id="senha" name="senha" 
+                                       placeholder="Mínimo 6 caracteres" required minlength="6">
+                                <div class="form-text">Senha inicial do administrador</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmar_senha" class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Confirmar Senha *
+                                </label>
+                                <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" 
+                                       placeholder="Repita a senha" required minlength="6">
+                                <div class="form-text">Confirme a senha para validação</div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{{ url_for('gerenciar_administradores') }}" class="btn btn-secondary">
+                                        <i class="fas fa-times me-1"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-1"></i>Cadastrar Administrador
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+// Validação de confirmação de senha
+document.getElementById('confirmar_senha').addEventListener('input', function() {
+    const senha = document.getElementById('senha').value;
+    const confirmarSenha = this.value;
+    
+    if (senha !== confirmarSenha) {
+        this.setCustomValidity('As senhas não coincidem');
+        this.classList.add('is-invalid');
+    } else {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+});
+
+// Validação do formulário
+document.querySelector('form').addEventListener('submit', function(e) {
+    const nome = document.getElementById('nome_completo').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const senha = document.getElementById('senha').value;
+    const confirmarSenha = document.getElementById('confirmar_senha').value;
+    const perfil = document.getElementById('perfil').value;
+    
+    // Verificar campos obrigatórios
+    if (!nome || !email || !senha || !confirmarSenha || !perfil) {
+        e.preventDefault();
+        alert('Todos os campos são obrigatórios!');
+        return false;
+    }
+    
+    // Verificar confirmação de senha
+    if (senha !== confirmarSenha) {
+        e.preventDefault();
+        alert('As senhas não coincidem!');
+        document.getElementById('confirmar_senha').focus();
+        return false;
+    }
+    
+    // Verificar tamanho da senha
+    if (senha.length < 6) {
+        e.preventDefault();
+        alert('A senha deve ter pelo menos 6 caracteres!');
+        document.getElementById('senha').focus();
+        return false;
+    }
+    
+    // Validação básica de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        e.preventDefault();
+        alert('Por favor, insira um email válido!');
+        document.getElementById('email').focus();
+        return false;
+    }
+    
+    // Confirmação para perfil Master
+    if (perfil === 'Master') {
+        if (!confirm('Você está criando um administrador Master com acesso total ao sistema. Confirma?')) {
+            e.preventDefault();
+            return false;
+        }
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Administrador - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-edit me-2"></i>Editar Administrador
+                    </h1>
+                    <p class="text-muted mb-0">Atualizar dados do administrador #{{ administrador.id }}</p>
+                </div>
+                <a href="{{ url_for('gerenciar_administradores') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar à Lista
+                </a>
+            </div>
+
+            <!-- Formulário de Edição -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-user-edit me-2"></i>Dados do Administrador
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('processar_edicao_administrador', admin_id=administrador.id) }}">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="nome_completo" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Nome Completo *
+                                </label>
+                                <input type="text" class="form-control" id="nome_completo" name="nome_completo" 
+                                       value="{{ administrador.nome_completo }}" required maxlength="100">
+                                <div class="form-text">Nome completo do administrador</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Email *
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ administrador.email }}" required maxlength="100">
+                                <div class="form-text">Email para login no sistema</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="perfil" class="form-label">
+                                    <i class="fas fa-user-cog me-1"></i>Perfil de Acesso *
+                                </label>
+                                <select class="form-select" id="perfil" name="perfil" required>
+                                    <option value="">Selecione o perfil</option>
+                                    <option value="Master" {% if administrador.perfil == 'Master' %}selected{% endif %}>
+                                        Master - Acesso Total
+                                    </option>
+                                    <option value="Padrão" {% if administrador.perfil == 'Padrão' %}selected{% endif %}>
+                                        Padrão - Operacional
+                                    </option>
+                                </select>
+                                <div class="form-text">Nível de permissão no sistema</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Senha
+                                </label>
+                                <input type="password" class="form-control" value="••••••••" readonly disabled>
+                                <div class="form-text text-warning">
+                                    <i class="fas fa-info-circle me-1"></i>Senhas não podem ser editadas por administradores
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-calendar me-1"></i>Data de Cadastro
+                                </label>
+                                <input type="text" class="form-control" 
+                                       value="{{ administrador.data_cadastro.split(' ')[0] if administrador.data_cadastro else 'N/A' }}" 
+                                       readonly disabled>
+                                <div class="form-text">Data de registro no sistema</div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{{ url_for('gerenciar_administradores') }}" class="btn btn-secondary">
+                                        <i class="fas fa-times me-1"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>Salvar Alterações
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Status do Administrador -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-info me-2"></i>Status Atual
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>ID:</strong> #{{ administrador.id }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Perfil Atual:</strong> 
+                            {% if administrador.perfil == 'Master' %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-crown me-1"></i>Master
+                                </span>
+                            {% else %}
+                                <span class="badge bg-info">
+                                    <i class="fas fa-user-tie me-1"></i>Padrão
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Status:</strong> 
+                            {% if administrador.ativo %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Ativo
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times me-1"></i>Inativo
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Cadastro:</strong> {{ administrador.data_cadastro.split(' ')[0] if administrador.data_cadastro else 'N/A' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alertas Especiais -->
+            {% if administrador.id == session.admin_id %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Editando sua própria conta:</strong> Você está editando suas próprias informações. Tenha cuidado ao alterar seu perfil de acesso.
+            </div>
+            {% endif %}
+            
+            {% if administrador.perfil == 'Master' %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Administrador Master:</strong> Este administrador possui acesso total ao sistema. Mudanças no perfil afetarão suas permissões imediatamente.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+// Validação do formulário
+document.querySelector('form').addEventListener('submit', function(e) {
+    const nome = document.getElementById('nome_completo').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const perfil = document.getElementById('perfil').value;
+    
+    // Verificar campos obrigatórios
+    if (!nome || !email || !perfil) {
+        e.preventDefault();
+        alert('Todos os campos obrigatórios devem ser preenchidos!');
+        return false;
+    }
+    
+    // Validação básica de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        e.preventDefault();
+        alert('Por favor, insira um email válido!');
+        return false;
+    }
+    
+    // Confirmação para mudança de perfil Master
+    const perfilAtual = '{{ administrador.perfil }}';
+    if (perfil === 'Master' && perfilAtual !== 'Master') {
+        if (!confirm('Você está promovendo este administrador para Master com acesso total. Confirma?')) {
+            e.preventDefault();
+            return false;
+        }
+    }
+    
+    // Confirmação para remoção de perfil Master
+    if (perfil !== 'Master' && perfilAtual === 'Master') {
+        if (!confirm('Você está removendo o acesso Master deste administrador. Ele perderá permissões importantes. Confirma?')) {
+            e.preventDefault();
+            return false;
+        }
+    }
+    
+    // Alerta especial se está editando própria conta
+    const adminAtualId = {{ session.admin_id }};
+    const adminEditandoId = {{ administrador.id }};
+    if (adminAtualId === adminEditandoId && perfil !== perfilAtual) {
+        if (!confirm('Você está alterando seu próprio perfil de acesso. Isso pode afetar suas permissões. Confirma?')) {
+            e.preventDefault();
+            return false;
+        }
+    }
+});
+
+// Destacar perfil selecionado
+document.getElementById('perfil').addEventListener('change', function() {
+    const perfil = this.value;
+    
+    // Remover highlight anterior
+    document.querySelectorAll('.form-select').forEach(select => {
+        select.classList.remove('border-warning', 'border-info');
+    });
+    
+    // Adicionar highlight baseado no perfil
+    if (perfil === 'Master') {
+        this.classList.add('border-warning');
+    } else if (perfil === 'Padrão') {
+        this.classList.add('border-info');
+    }
+});
+
+// Definir highlight inicial
+document.addEventListener('DOMContentLoaded', function() {
+    const perfilSelect = document.getElementById('perfil');
+    const perfilAtual = perfilSelect.value;
+    
+    if (perfilAtual === 'Master') {
+        perfilSelect.classList.add('border-warning');
+    } else if (perfilAtual === 'Padrão') {
+        perfilSelect.classList.add('border-info');
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

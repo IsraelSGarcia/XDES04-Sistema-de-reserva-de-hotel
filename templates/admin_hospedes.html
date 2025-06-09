@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Hóspedes - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-users me-2"></i>Gerenciamento de Hóspedes
+                    </h1>
+                    <p class="text-muted mb-0">Consultar, editar e gerenciar hóspedes cadastrados</p>
+                </div>
+                <a href="{{ url_for('painel_admin') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar ao Painel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros de Busca -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Filtros de Busca
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('gerenciar_hospedes') }}">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="nome" class="form-label">Nome</label>
+                                <input type="text" class="form-control" id="nome" name="nome" 
+                                       value="{{ filtro_nome }}" placeholder="Digite o nome">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="cpf" class="form-label">CPF</label>
+                                <input type="text" class="form-control" id="cpf" name="cpf" 
+                                       value="{{ filtro_cpf }}" placeholder="000.000.000-00">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ filtro_email }}" placeholder="email@exemplo.com">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="">Todos</option>
+                                    <option value="ativo" {% if filtro_status == 'ativo' %}selected{% endif %}>Ativo</option>
+                                    <option value="inativo" {% if filtro_status == 'inativo' %}selected{% endif %}>Inativo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-1"></i>Buscar
+                                </button>
+                                <a href="{{ url_for('gerenciar_hospedes') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>Limpar Filtros
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Hóspedes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Hóspedes Cadastrados
+                        <span class="badge bg-primary">{{ hospedes|length }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if hospedes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nome Completo</th>
+                                        <th>Email</th>
+                                        <th>CPF</th>
+                                        <th>Telefone</th>
+                                        <th>Status</th>
+                                        <th>Data Cadastro</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for hospede in hospedes %}
+                                    <tr>
+                                        <td><strong>#{{ hospede.id }}</strong></td>
+                                        <td>{{ hospede.nome_completo }}</td>
+                                        <td>{{ hospede.email }}</td>
+                                        <td>{{ hospede.cpf[:3] }}.{{ hospede.cpf[3:6] }}.{{ hospede.cpf[6:9] }}-{{ hospede.cpf[9:] }}</td>
+                                        <td>{{ hospede.telefone }}</td>
+                                        <td>
+                                            {% if hospede.ativo %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>Ativo
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times me-1"></i>Inativo
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ hospede.data_cadastro.split(' ')[0] if hospede.data_cadastro else 'N/A' }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{{ url_for('editar_hospede', hospede_id=hospede.id) }}" 
+                                                   class="btn btn-outline-primary" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% if hospede.ativo %}
+                                                <button type="button" class="btn btn-outline-danger" 
+                                                        onclick="confirmarExclusao({{ hospede.id }}, '{{ hospede.nome_completo }}')"
+                                                        title="Inativar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhum hóspede encontrado</h5>
+                            <p class="text-muted">
+                                {% if filtro_nome or filtro_cpf or filtro_email or filtro_status %}
+                                Tente ajustar os filtros de busca para encontrar os hóspedes desejados.
+                                {% else %}
+                                Ainda não há hóspedes cadastrados no sistema.
+                                {% endif %}
+                            </p>
+                            {% if not (filtro_nome or filtro_cpf or filtro_email or filtro_status) %}
+                            <a href="{{ url_for('cadastro_hospede') }}" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Cadastrar Primeiro Hóspede
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Inativação -->
+<div class="modal fade" id="modalExclusao" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Inativação
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja inativar o hóspede <strong id="nomeHospede"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Esta operação irá inativar o hóspede. Os dados permanecerão no sistema para fins de auditoria.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <form id="formExclusao" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-ban me-1"></i>Inativar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+// Função para confirmar exclusão
+function confirmarExclusao(hospedeId, nomeHospede) {
+    document.getElementById('nomeHospede').textContent = nomeHospede;
+    document.getElementById('formExclusao').action = `/admin/hospede/${hospedeId}/excluir`;
+    new bootstrap.Modal(document.getElementById('modalExclusao')).show();
+}
+
+// Máscara para CPF no filtro
+document.getElementById('cpf').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 11) {
+        value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        e.target.value = value;
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 
