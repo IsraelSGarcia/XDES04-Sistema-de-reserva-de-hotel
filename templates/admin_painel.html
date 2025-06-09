@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Painel Administrativo - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header do Painel -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-1">
+                                <i class="fas fa-tachometer-alt me-2"></i>Painel Administrativo
+                            </h1>
+                            <p class="mb-0">
+                                Bem-vindo, {{ session.admin_nome }}! 
+                                <span class="badge bg-light text-dark">{{ session.admin_perfil }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <p class="card-text">
+                                <strong>Hotel Boa Estadia</strong><br>
+                                <small class="text-muted">Sistema de Reservas</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu de Funcionalidades -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h2 class="h4 mb-3">
+                <i class="fas fa-cogs me-2"></i>Acesso Rápido
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Gerenciamento de Hóspedes -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                    <h3 class="h5 fw-bold mb-3">Hóspedes</h3>
+                    <p class="text-muted mb-4">
+                        Gerenciamento completo de hóspedes
+                    </p>
+                    <a href="{{ url_for('gerenciar_hospedes') }}" class="btn btn-primary">
+                        <i class="fas fa-users me-2"></i>Acessar
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gerenciamento de Administradores -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="fas fa-user-cog fa-2x"></i>
+                    </div>
+                    <h3 class="h5 fw-bold mb-3">Administradores</h3>
+                    <p class="text-muted mb-4">
+                        Controle de usuários administrativos
+                        {% if session.admin_perfil != 'Master' %}
+                        <br><span class="text-warning">(Acesso Master)</span>
+                        {% endif %}
+                    </p>
+                    {% if session.admin_perfil == 'Master' %}
+                        <a href="{{ url_for('gerenciar_administradores') }}" class="btn btn-primary">
+                            <i class="fas fa-user-cog me-2"></i>Acessar
+                        </a>
+                    {% else %}
+                        <button class="btn btn-secondary" disabled>
+                            <i class="fas fa-lock me-2"></i>Restrito
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

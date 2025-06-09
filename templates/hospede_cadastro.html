@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro de Hóspede - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Cadastro de Hóspede
+                    </h2>
+                    <p class="mb-0 small">Preencha os dados abaixo para criar sua conta no sistema</p>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('processar_cadastro_hospede') }}">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="nome_completo" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Nome Completo *
+                                </label>
+                                <input type="text" class="form-control" id="nome_completo" name="nome_completo" 
+                                       placeholder="Digite seu nome completo" required maxlength="100">
+                                <div class="form-text">Informe seu nome completo como aparece no documento</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Email *
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="seu@email.com" required maxlength="100">
+                                <div class="form-text">Será usado para login no sistema</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cpf" class="form-label">
+                                    <i class="fas fa-id-card me-1"></i>CPF *
+                                </label>
+                                <input type="text" class="form-control" id="cpf" name="cpf" 
+                                       placeholder="000.000.000-00" required maxlength="14"
+                                       pattern="[0-9]{3}\.?[0-9]{3}\.?[0-9]{3}-?[0-9]{2}">
+                                <div class="form-text">Apenas números ou formato 000.000.000-00</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="telefone" class="form-label">
+                                    <i class="fas fa-phone me-1"></i>Telefone *
+                                </label>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" 
+                                       placeholder="(00) 00000-0000" required maxlength="20">
+                                <div class="form-text">Para contato e confirmações</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="senha" class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Senha *
+                                </label>
+                                <input type="password" class="form-control" id="senha" name="senha" 
+                                       placeholder="Mínimo 6 caracteres" required minlength="6">
+                                <div class="form-text">Mínimo 6 caracteres para sua segurança</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="aceitar_termos" required>
+                                    <label class="form-check-label" for="aceitar_termos">
+                                        Declaro que li e aceito os termos de uso do sistema RESTEL *
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i>Voltar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>Cadastrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+// Máscara para CPF
+document.getElementById('cpf').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 11) {
+        value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        e.target.value = value;
+    }
+});
+
+// Máscara para telefone
+document.getElementById('telefone').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 11) {
+        if (value.length <= 10) {
+            value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        } else {
+            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+        e.target.value = value;
+    }
+});
+
+// Validação do formulário
+document.querySelector('form').addEventListener('submit', function(e) {
+    const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
+    if (cpf.length !== 11) {
+        e.preventDefault();
+        alert('CPF deve ter 11 dígitos!');
+        return false;
+    }
+    
+    const senha = document.getElementById('senha').value;
+    if (senha.length < 6) {
+        e.preventDefault();
+        alert('Senha deve ter pelo menos 6 caracteres!');
+        return false;
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

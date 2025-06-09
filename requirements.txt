@@ -1,0 +1,7 @@
+Flask==2.3.3
+Werkzeug==2.3.7
+selenium==4.11.2
+pytest==7.4.0
+pytest-html==3.2.0
+webdriver-manager==3.9.1
+requests==2.31.0 
