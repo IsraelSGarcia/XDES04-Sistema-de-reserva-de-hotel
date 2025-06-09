@@ -8,7 +8,8 @@ app = Flask(__name__)
 app.secret_key = 'restel_secret_key_2025'
 
 # Configurações do banco de dados
-DATABASE = 'restel.db'
+import os
+DATABASE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'restel.db')
 
 def init_db():
     """Inicializa o banco de dados com as tabelas necessárias"""
