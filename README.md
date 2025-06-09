@@ -31,7 +31,7 @@ Sistema completo para gerenciamento de hóspedes e administradores do sistema RE
    ```bash
    # Se usando git
    git clone https://github.com/IsraelSGarcia/XDES04-Sistema-de-reserva-de-hotel
-   cd restel
+   cd XDES04-Sistema-de-reserva-de-hotel
    ```
 
 2. **Instale as dependências**
