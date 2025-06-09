@@ -27,19 +27,27 @@ Sistema completo para gerenciamento de hóspedes e administradores do sistema RE
 
 ### Configuração Rápida
 
-1. **Configuração Automática do Ambiente (Recomendado)**
+1. **🚀 Inicialização Simples (Novo!)**
    ```bash
-   # Execute o script de configuração (100% em português)
-   python setup_dev.py
+   # Script principal com todas as opções
+   python iniciar.py
    ```
    
-   **O script agora inclui:**
-   - Interface completamente em português
-   - Correção automática de caminhos
-   - Verificação de dependências em português
-   - Mensagens de erro e sucesso traduzidas
+   **Interface unificada com:**
+   - Configuração automática do ambiente
+   - Executor de testes interativo  
+   - Inicialização da aplicação web
+   - Status do projeto em tempo real
+   - Acesso à documentação
+   - Ferramentas de desenvolvimento
 
-2. **Configuração Manual (Alternativa)**
+2. **⚙️ Configuração Automática**
+   ```bash
+   # Script de configuração (100% em português)
+   python tools/setup_dev.py
+   ```
+
+3. **🔧 Configuração Manual (Alternativa)**
    ```bash
    # Instale as dependências
    pip install -r requirements.txt
@@ -57,31 +65,38 @@ Sistema completo para gerenciamento de hóspedes e administradores do sistema RE
 
 ```
 restel/
-├── src/
-│   └── restel/
-│       ├── app.py              # Aplicação principal Flask
-│       └── templates/          # Templates HTML
-├── tests/                      # Suíte de testes
+├── 📱 src/restel/              # Aplicação principal
+│   ├── app.py                 # Aplicação Flask principal
+│   └── templates/             # Templates HTML Jinja2
+├── 🧪 tests/                   # Suíte de testes
 │   ├── conftest.py            # Configuração de testes
 │   ├── test_admin_crud.py     # Testes CRUD administradores
 │   ├── test_guest_crud.py     # Testes CRUD hóspedes
 │   ├── test_routes.py         # Testes de rotas
 │   ├── test_simple.py         # Testes unitários
-│   ├── pages/                 # Modelos de página (Page Objects)
+│   ├── pytest.ini            # Configuração pytest
+│   ├── pages/                 # Page Objects (Selenium)
 │   ├── utils/                 # Utilitários de teste
-│   ├── reports/               # Relatórios de teste (limpos automaticamente)
+│   ├── reports/               # Relatórios HTML (auto-limpeza)
 │   └── screenshots/           # Screenshots de falhas
-├── scripts/                   # Scripts utilitários (legados)
-├── data/                      # Arquivos de banco de dados
-├── static/                    # Recursos estáticos (CSS, JS, imagens)
-├── docs/                      # Documentação
-│   └── DESENVOLVIMENTO.md     # Guia técnico para desenvolvedores
-├── logs/                      # Logs da aplicação
-├── test_runner.py             # Executor de testes interativo (português)
-├── setup_dev.py               # Configuração de desenvolvimento (português)
-├── requirements.txt           # Dependências Python
-├── pytest.ini                # Configuração de testes
-└── .gitignore                 # Controle de versão (comentários em português)
+├── 🔧 tools/                   # Ferramentas de desenvolvimento
+│   ├── setup_dev.py           # Configuração de ambiente
+│   └── test_runner.py         # Executor de testes interativo
+├── 💾 data/                    # Banco de dados
+│   └── restel.db              # SQLite database
+├── 🎨 static/                  # Recursos web estáticos
+│   ├── css/                   # Arquivos CSS
+│   ├── js/                    # Arquivos JavaScript
+│   └── images/                # Imagens
+├── 📚 docs/                    # Documentação
+│   ├── DESENVOLVIMENTO.md     # Guia técnico completo
+│   └── CLEANUP_PLAN.md        # Histórico de organização
+├── 📜 scripts/                 # Scripts legados/utilitários
+├── 📝 logs/                    # Logs da aplicação
+├── 🚀 iniciar.py               # Script principal de entrada
+├── 📋 README.md                # Este arquivo
+├── 📦 requirements.txt         # Dependências Python
+└── 🔒 .gitignore              # Controle de versão
 ```
 
 ## 🧪 Testes Automatizados
@@ -91,7 +106,9 @@ O projeto inclui uma suíte abrangente de testes com um executor interativo.
 ### Executor de Testes Interativo
 
 ```bash
-python test_runner.py
+python tools/test_runner.py
+# ou através do script principal
+python iniciar.py  # opção 2
 ```
 
 O executor de testes agora está **100% em português** com interface intuitiva:
