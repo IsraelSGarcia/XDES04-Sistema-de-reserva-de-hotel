@@ -1,0 +1,22 @@
+# Dependências para Testes - Sistema RESTEL
+
+# Core testing
+pytest>=7.0.0
+pytest-html>=3.1.0
+pytest-cov>=4.0.0
+
+# Web testing  
+selenium>=4.0.0
+webdriver-manager>=3.8.0
+
+# Data generation (opcional)
+faker>=18.0.0
+
+# Performance testing (opcional)  
+pytest-xdist>=3.0.0
+pytest-benchmark>=4.0.0
+
+# Additional testing utilities
+pytest-mock>=3.10.0
+pytest-timeout>=2.1.0
+pytest-rerunfailures>=11.0.0 

@@ -1,8 +1,46 @@
 """
-Page Objects para funcionalidades de hóspedes
+Page Objects para páginas de hóspedes
 """
-from selenium.webdriver.common.by import By
 from .base_page import BasePage
+from selenium.webdriver.common.by import By
+
+
+class GuestPages(BasePage):
+    """Page Object para páginas de hóspedes"""
+    
+    def __init__(self, driver):
+        super().__init__(driver)
+        self.base_url = "http://localhost:5000"
+    
+    # Locators
+    NOME_FIELD = (By.ID, "nome_completo")
+    EMAIL_FIELD = (By.ID, "email")
+    CPF_FIELD = (By.ID, "cpf")
+    TELEFONE_FIELD = (By.ID, "telefone")
+    SENHA_FIELD = (By.ID, "senha")
+    SUBMIT_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
+    
+    def go_to_cadastro(self):
+        """Navega para página de cadastro"""
+        self.go_to(f"{self.base_url}/cadastro")
+    
+    def fill_cadastro_form(self, guest_data):
+        """Preenche formulário de cadastro"""
+        self.send_keys(self.NOME_FIELD, guest_data['nome_completo'])
+        self.send_keys(self.EMAIL_FIELD, guest_data['email'])
+        self.send_keys(self.CPF_FIELD, guest_data['cpf'])
+        self.send_keys(self.TELEFONE_FIELD, guest_data['telefone'])
+        self.send_keys(self.SENHA_FIELD, guest_data['senha'])
+    
+    def submit_cadastro(self):
+        """Submete formulário de cadastro"""
+        self.click(self.SUBMIT_BUTTON)
+    
+    def cadastrar_hospede(self, guest_data):
+        """Processo completo de cadastro"""
+        self.go_to_cadastro()
+        self.fill_cadastro_form(guest_data)
+        self.submit_cadastro()
 
 
 class GuestRegistrationPage(BasePage):

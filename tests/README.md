@@ -1,393 +1,325 @@
-# 🧪 Testes Automatizados do RESTEL
+# 🧪 Testes Automatizados - Sistema RESTEL
 
-Sistema completo de testes automatizados para o RESTEL - Sistema de Reserva de Hotel, utilizando **Selenium WebDriver** e **pytest** com **Page Object Model**.
+## 📋 Visão Geral
 
-## 📋 Índice
+Sistema de testes completamente reorganizado e modularizado para o projeto RESTEL. Esta nova estrutura oferece flexibilidade, organização e facilidade de manutenção.
 
-- [✨ Status Atual](#-status-atual)
-- [🏗️ Estrutura dos Testes](#️-estrutura-dos-testes)
-- [🔧 Pré-requisitos](#-pré-requisitos)
-- [🚀 Execução dos Testes](#-execução-dos-testes)
-- [🎯 Tipos de Testes](#-tipos-de-testes)
-- [🎭 Page Objects](#-page-objects)
-- [📊 Relatórios](#-relatórios)
-- [⚙️ Configuração](#️-configuração)
-- [🔧 Troubleshooting](#-troubleshooting)
-
-## ✨ Status Atual
-
-**🎉 SISTEMA 100% FUNCIONAL!**
-
-- ✅ **24 testes automatizados** (10 hóspedes + 14 administradores) - **TODOS PASSANDO**
-- ✅ **URLs corrigidas** para corresponder às rotas Flask
-- ✅ **Seletores CSS atualizados** para elementos reais da interface
-- ✅ **ChromeDriver automaticamente gerenciado**
-- ✅ **Interceptação de cliques resolvida** com scroll automático
-- ✅ **Relatórios HTML** com screenshots de falhas
-- ✅ **Execução automática** com Flask integrado
-
-## 🏗️ Estrutura dos Testes
+## 🏗️ Estrutura Organizada
 
 ```
 tests/
-├── conftest.py                 # 🔧 Configurações globais (Flask manager, WebDriver)
-├── pytest.ini                 # ⚙️ Configuração do pytest
-├── README.md                   # 📖 Esta documentação
+├── config/              # Configurações centralizadas
+│   ├── conftest.py     # Fixtures principais e configuração
+│   └── pytest.ini     # Configuração do pytest
 │
-├── pages/                      # 🎭 Page Objects
-│   ├── base_page.py           # 🏛️ Classe base com scroll automático
-│   ├── guest_pages.py         # 🏠 Pages para hóspedes
-│   └── admin_pages.py         # 👨‍💼 Pages para administradores
+├── unit/               # Testes unitários
+│   └── test_simple.py  # Testes básicos do sistema
 │
-├── test_guest_crud.py         # 🧪 10 testes CRUD de hóspedes
-├── test_admin_crud.py         # 🧪 14 testes CRUD de administradores
+├── integration/        # Testes de integração
+│   └── test_auth_integration.py  # Fluxos de autenticação
 │
-├── utils/
-│   └── test_helpers.py        # 🛠️ Geradores de dados e helpers
+├── e2e/               # Testes end-to-end (Selenium)
+│   ├── test_admin_crud.py
+│   └── test_guest_crud.py
 │
-├── screenshots/               # 📸 Screenshots automáticas de falhas
-└── reports/                   # 📊 Relatórios HTML com gráficos
+├── api/               # Testes de API/rotas
+│   └── test_routes.py
+│
+├── fixtures/          # Fixtures organizadas
+│   ├── __init__.py
+│   ├── database_fixtures.py
+│   ├── auth_fixtures.py
+│   └── data_fixtures.py
+│
+├── helpers/           # Utilitários e funções auxiliares
+│   ├── __init__.py
+│   └── test_helpers.py
+│
+├── pages/             # Page Objects para Selenium
+│   └── (arquivos de page objects)
+│
+├── reports/           # Relatórios gerados
+├── screenshots/       # Screenshots de falhas
+└── README.md         # Esta documentação
 ```
 
-## 🔧 Pré-requisitos
+## 🎯 Categorias de Teste
 
-### Sistema
-- **Python 3.8+**
-- **Google Chrome** (versão atual)
-- **Windows 10+** (testado e otimizado)
+### 🧪 Testes Unitários (`/unit/`)
+- Verificações básicas de componentes isolados
+- Importações e configurações
+- Funcionalidades individuais
+- **Marcadores**: `@pytest.mark.unit`, `@pytest.mark.smoke`
 
-### Dependências
-Versões específicas **testadas e funcionando**:
-```
-Flask==2.3.3
-selenium==4.11.2          # Versão compatível
-pytest==7.4.0             # Versão estável  
-pytest-html==3.2.0        # Relatórios funcionais
-webdriver-manager==3.9.1  # Versão que funciona no Windows
-```
+### 🔗 Testes de Integração (`/integration/`)
+- Fluxos completos entre componentes
+- Interações banco de dados + aplicação
+- Autenticação e autorização
+- **Marcadores**: `@pytest.mark.integration`, `@pytest.mark.auth`
 
-## 🚀 Execução dos Testes
+### 🌐 Testes End-to-End (`/e2e/`)
+- Simulação completa de uso real
+- Interface gráfica com Selenium
+- Jornadas de usuário completas
+- **Marcadores**: `@pytest.mark.e2e`, `@pytest.mark.ui`
 
-### 🎯 **Método Recomendado** (Totalmente Automático)
+### 🚀 Testes de API (`/api/`)
+- Endpoints e rotas HTTP
+- Códigos de resposta
+- Validação de dados
+- **Marcadores**: `@pytest.mark.api`
 
-```cmd
-start_flask_and_test.bat
-```
-**✅ O que faz:**
-- Inicia Flask automaticamente em background
-- Aguarda 5 segundos para inicialização
-- Executa todos os 24 testes com browser visível
-- Gera relatório HTML completo
+## 🏷️ Sistema de Marcadores
 
-### 🖥️ **Método Manual** (2 Terminais)
+### Marcadores por Tipo
+- `unit` - Testes unitários
+- `integration` - Testes de integração
+- `e2e` - Testes end-to-end
+- `api` - Testes de API
 
-**Terminal 1** (manter aberto):
-```cmd
-python app.py
-```
+### Marcadores por Funcionalidade
+- `smoke` - Testes críticos/rápidos
+- `regression` - Testes de regressão
+- `crud` - Operações CRUD
+- `auth` - Autenticação
+- `database` - Operações de banco
+- `ui` - Interface do usuário
+- `forms` - Formulários
+- `validation` - Validações
 
-**Terminal 2** (executar testes):
-```cmd
-python run_tests.py --visible
-```
+### Marcadores por Performance
+- `slow` - Testes demorados
+- `fast` - Testes rápidos
 
-### 🎛️ **Opções de Execução**
+## 🛠️ Fixtures Organizadas
 
-```cmd
-# Todos os testes (modo invisível - mais rápido)
-python run_tests.py
-
-# Todos os testes (modo visível - ver o browser)
-python run_tests.py --visible
-
-# Apenas testes de hóspedes
-python run_tests.py --type guest --visible
-
-# Apenas testes de administradores  
-python run_tests.py --type admin --visible
-
-# Verificação rápida do sistema
-python test_simple.py
-```
-
-### 🔬 **Pytest Direto**
-
-```cmd
-# Execução específica
-python -m pytest tests/test_admin_crud.py::TestAdminCRUD::test_admin_login_valid_credentials -v -s
-
-# Todos os testes com relatório
-python -m pytest tests/ -v --html=tests/reports/report.html
-
-# Por marcadores
-python -m pytest -m admin -v
-python -m pytest -m guest -v
-```
-
-## 🎯 Tipos de Testes
-
-### 🏠 **Testes de Hóspedes** (10 testes)
-
-| Teste | Status | Descrição |
-|-------|--------|-----------|
-| `test_create_guest_valid_data` | ✅ | Cadastro com dados válidos |
-| `test_create_guest_invalid_data` | ✅ | Validação de dados inválidos |
-| `test_read_guest_list` | ✅ | Listagem via painel admin |
-| `test_search_guest` | ✅ | Busca por nome/email |
-| `test_update_guest` | ✅ | Edição de dados |
-| `test_delete_guest` | ✅ | Inativação lógica |
-| `test_guest_form_validation` | ✅ | Campos obrigatórios |
-| `test_edit_guest_form_prepopulation` | ✅ | Preenchimento automático |
-| `test_cancel_guest_edit` | ✅ | Cancelar edição |
-| `test_search_no_results` | ✅ | Busca sem resultados |
-
-### 👨‍💼 **Testes de Administradores** (14 testes)
-
-| Teste | Status | Descrição |
-|-------|--------|-----------|
-| `test_admin_login_valid_credentials` | ✅ | Login correto |
-| `test_admin_login_invalid_credentials` | ✅ | Login incorreto |
-| `test_create_admin_valid_data` | ✅ | Cadastro válido |
-| `test_create_admin_invalid_data` | ✅ | Validação dados |
-| `test_read_admin_list` | ✅ | Listagem de admins |
-| `test_search_admin` | ✅ | Busca de admins |
-| `test_update_admin` | ✅ | Atualização |
-| `test_delete_admin` | ✅ | Exclusão lógica |
-| `test_admin_form_validation` | ✅ | Validação formulário |
-| `test_edit_admin_form_prepopulation` | ✅ | Preenchimento |
-| `test_cancel_admin_edit` | ✅ | Cancelar edição |
-| `test_search_no_results` | ✅ | Busca vazia |
-| `test_admin_panel_navigation` | ✅ | Navegação painel |
-| `test_different_admin_profiles` | ✅ | Perfis Master/Padrão |
-
-**Legenda:** ✅ Funcionando
-
-## 🎭 Page Objects
-
-### **Arquitetura Robusta**
-
-#### `BasePage` - Classe Base Inteligente
+### Fixtures de Banco de Dados
 ```python
-class BasePage:
-    def click(self, locator):
-        # Scroll automático para elemento
-        # Tratamento de interceptação com JavaScript
-        # Espera explícita de clicabilidade
-    
-    def send_keys(self, locator, text):
-        # Limpeza automática do campo
-        # Espera de presença do elemento
-    
-    def scroll_to_element(self, locator):
-        # Centraliza elemento na tela
+test_database      # Banco temporário para sessão
+clean_database     # Banco limpo para cada teste
+database_connection # Conexão direta ao banco
+database_cursor    # Cursor do banco
+empty_database     # Banco completamente vazio
 ```
 
-#### **URLs Corretas** (Corrigidas!)
+### Fixtures de Autenticação
 ```python
-# ✅ URLs que funcionam
-LOGIN_URL = "http://localhost:5000/admin/login"
-PANEL_URL = "http://localhost:5000/admin/painel" 
-GUESTS_URL = "http://localhost:5000/admin/hospedes"
-ADMINS_URL = "http://localhost:5000/admin/administradores"
-GUEST_REGISTER_URL = "http://localhost:5000/hospede/cadastro"
-ADMIN_REGISTER_URL = "http://localhost:5000/admin/administrador/cadastro"
+admin_credentials     # Credenciais do admin
+guest_credentials     # Credenciais de hóspede
+app_client           # Cliente Flask
+logged_admin_client  # Cliente com admin logado
+logged_guest_client  # Cliente com hóspede logado
 ```
 
-#### **Seletores CSS Atualizados**
+### Fixtures de Dados
 ```python
-# ✅ Seletores que funcionam
-GUESTS_TABLE = (By.CSS_SELECTOR, ".table")  # Tabela real
-EDIT_BUTTONS = (By.CSS_SELECTOR, ".btn-outline-primary")  # Botões reais
-DELETE_BUTTONS = (By.CSS_SELECTOR, ".btn-outline-danger")  # Botões reais
+valid_guest_data     # Dados válidos de hóspede
+invalid_guest_data   # Dados inválidos
+valid_admin_data     # Dados válidos de admin
+random_guest_data    # Dados aleatórios (Faker)
+multiple_guests_data # Múltiplos hóspedes
+edge_case_data      # Casos extremos
+sql_injection_data  # Dados para teste de segurança
 ```
 
-## 📊 Relatórios
+## 🚀 Executando Testes
 
-### **Relatórios HTML Automáticos**
-📍 **Localização:** `tests/reports/report_YYYYMMDD_HHMMSS.html`
-
-**📈 Inclui:**
-- Gráfico de resultados (pizza)
-- Duração de cada teste
-- Screenshots de falhas automáticas
-- Logs detalhados de erros
-- Estatísticas completas
-
-### **Screenshots de Falhas**
-📍 **Localização:** `tests/screenshots/failure_nome_teste_timestamp.png`
-
-**📸 Captura automática quando:**
-- Elemento não encontrado
-- Timeout de espera
-- Assertion falha
-- Erro inesperado
-
-## ⚙️ Configuração
-
-### **pytest.ini**
-```ini
-[tool:pytest]
-markers =
-    admin: Testes de funcionalidades administrativas
-    guest: Testes de funcionalidades de hóspedes
-    crud: Testes de operações CRUD
-    ui: Testes de interface de usuário
-
-testpaths = tests
-python_files = test_*.py
-python_classes = Test*
-python_functions = test_*
-
-addopts = 
-    -v
-    --tb=short
-    --strict-markers
-```
-
-### **Variáveis de Ambiente**
+### Por Categoria
 ```bash
-# Modo headless (padrão: true)
-set PYTEST_BROWSER_HEADLESS=false
+# Testes unitários
+pytest tests/unit -v
 
-# Browser (padrão: chrome)  
-set PYTEST_BROWSER=firefox
+# Testes de integração
+pytest tests/integration -v
 
-# Timeout (padrão: 10s)
-set PYTEST_TIMEOUT=15
+# Testes end-to-end
+pytest tests/e2e -v
+
+# Testes de API
+pytest tests/api -v
 ```
 
-## 🔧 Troubleshooting
+### Por Marcador
+```bash
+# Testes rápidos
+pytest -m smoke -v
 
-### ❌ **Problemas Comuns e Soluções**
+# Testes de autenticação
+pytest -m auth -v
 
-#### **1. ChromeDriver Error**
-```
-OSError: [WinError 193] %1 is not a valid Win32 application
-```
-**✅ Solução:** Já corrigida! Usamos webdriver-manager 3.9.1
+# Testes CRUD
+pytest -m crud -v
 
-#### **2. Element Click Intercepted**
-```
-ElementClickInterceptedException: Element is not clickable
-```
-**✅ Solução:** Já corrigida! BasePage com scroll automático
-
-#### **3. Flask Não Conecta**
-```
-ConnectionRefusedError: [Errno 61] Connection refused
-```
-**✅ Soluções:**
-```cmd
-# Use o script automático
-start_flask_and_test.bat
-
-# Ou manualmente
-python app.py  # Terminal 1
-python run_tests.py --check-flask  # Terminal 2
+# Testes sem os lentos
+pytest -m "not slow" -v
 ```
 
-#### **4. URLs 404**
-```
-AssertionError: URL 'admin_painel' not found
-```
-**✅ Solução:** Já corrigida! Todas as URLs correspondem às rotas Flask
+### Combinações
+```bash
+# Testes unitários rápidos
+pytest -m "unit and smoke" -v
 
-### 🆘 **Verificação de Sistema**
+# Testes de integração de autenticação
+pytest -m "integration and auth" -v
 
-```cmd
-# Teste simples completo
-python test_simple.py
-
-# Verificar dependências
-python run_tests.py --install-deps
-
-# Teste individual
-python -m pytest tests/test_admin_crud.py::TestAdminCRUD::test_admin_login_valid_credentials -v -s
+# Todos exceto E2E e lentos
+pytest -m "not e2e and not slow" -v
 ```
 
-### 📞 **Debug Mode**
+### Execução Específica
+```bash
+# Arquivo específico
+pytest tests/unit/test_simple.py -v
 
-```cmd
-# Modo verbose com output
-python -m pytest tests/test_admin_crud.py -v -s
+# Classe específica
+pytest tests/integration/test_auth_integration.py::TestAuthFlow -v
 
-# Com browser visível para debugging  
-python run_tests.py --visible
-
-# Screenshots em todas as etapas (custom)
-# Adicione time.sleep(2) nos testes para inspecionar
+# Teste específico
+pytest tests/unit/test_simple.py::test_app_import -v
 ```
 
-## 🏆 **Conclusão**
+## 📊 Relatórios e Análise
 
-O sistema de testes automatizados do RESTEL está **100% funcional** com:
-
-- ✅ **24 testes robustos** cobrindo todo o CRUD
-- ✅ **Page Object Model** profissional
-- ✅ **Execução automática** com Flask integrado
-- ✅ **Relatórios HTML** detalhados
-- ✅ **Screenshots de falhas** automáticas
-- ✅ **Compatibilidade Windows** total
-
-**🚀 Para começar:**
-```cmd
-start_flask_and_test.bat
+### Relatório HTML
+```bash
+pytest tests/ --html=reports/relatorio.html --self-contained-html -v
 ```
 
-## 🎉 MISSÃO CUMPRIDA - TODOS OS TESTES FUNCIONANDO!
+### Relatório de Cobertura
+```bash
+pytest tests/ --cov=src/restel --cov-report=html --cov-report=term-missing
+```
 
-### ✅ **24/24 TESTES PASSANDO** (100% de sucesso)
+### Relatório de Duração
+```bash
+pytest tests/ --durations=10 -v
+```
 
-**🏠 Testes de Hóspedes (10/10):**
-- ✅ `test_create_guest_valid_data` - Cadastro com dados válidos
-- ✅ `test_create_guest_invalid_data` - Validação de dados inválidos  
-- ✅ `test_read_guest_list` - Listagem via painel admin
-- ✅ `test_search_guest` - Busca por nome/email *(CORRIGIDO)*
-- ✅ `test_update_guest` - Edição de dados *(CORRIGIDO)*
-- ✅ `test_delete_guest` - Inativação lógica *(CORRIGIDO)*
-- ✅ `test_guest_form_validation` - Campos obrigatórios
-- ✅ `test_edit_guest_form_prepopulation` - Preenchimento automático *(CORRIGIDO)*
-- ✅ `test_cancel_guest_edit` - Cancelar edição *(CORRIGIDO)*
-- ✅ `test_search_no_results` - Busca sem resultados
+## 🔧 Configuração Avançada
 
-**👨‍💼 Testes de Administradores (14/14):**
-- ✅ `test_admin_login_valid_credentials` - Login correto
-- ✅ `test_admin_login_invalid_credentials` - Login incorreto  
-- ✅ `test_create_admin_valid_data` - Cadastro válido *(CORRIGIDO)*
-- ✅ `test_create_admin_invalid_data` - Validação dados
-- ✅ `test_read_admin_list` - Listagem de admins
-- ✅ `test_search_admin` - Busca de admins *(CORRIGIDO)*
-- ✅ `test_update_admin` - Atualização *(CORRIGIDO)*
-- ✅ `test_delete_admin` - Exclusão lógica *(CORRIGIDO)*
-- ✅ `test_admin_form_validation` - Validação formulário
-- ✅ `test_edit_admin_form_prepopulation` - Preenchimento *(CORRIGIDO)*
-- ✅ `test_cancel_admin_edit` - Cancelar edição *(CORRIGIDO)*
-- ✅ `test_search_no_results` - Busca vazia
-- ✅ `test_admin_panel_navigation` - Navegação painel *(CORRIGIDO)*
-- ✅ `test_different_admin_profiles` - Perfis Master/Padrão *(CORRIGIDO)*
+### Arquivo pytest.ini
+O arquivo `config/pytest.ini` contém todas as configurações:
+- Marcadores personalizados
+- Opções padrão
+- Filtros de warnings
+- Configuração de logging
 
-### 🔧 **Principais Correções Implementadas:**
+### Configuração de Ambiente
+```bash
+# Executar em modo headless (padrão)
+export PYTEST_BROWSER_HEADLESS=true
 
-1. **📡 Configuração do Flask nos Testes:**
-   - Modificado `conftest.py` para detectar Flask externo já rodando
-   - Removidos emojis Unicode que causavam problemas no Windows
-   - Sistema de espera inteligente para sincronização
+# Executar com browser visível
+export PYTEST_BROWSER_HEADLESS=false
 
-2. **🎯 Adaptação da Busca de Administradores:**
-   - A página de administradores não possui campo de busca real
-   - Implementada busca simulada que filtra pela tabela existente
-   - Compatibilidade mantida com a interface atual
+# Configurar timeout
+export PYTEST_TIMEOUT=300
+```
 
-3. **✏️ Correções nos Testes de Criação:**
-   - Teste `test_create_admin_valid_data` adaptado para verificar submission
-   - Uso de emails únicos para evitar conflitos de dados
-   - Validação pela URL de resultado ao invés de busca
+## 💡 Dicas e Boas Práticas
 
-4. **🧭 Navegação do Painel Simplificada:**
-   - Teste `test_admin_panel_navigation` focado no essencial
-   - Verificação de carregamento completo da página
-   - Remoção de dependências de seletores complexos
+### Escrevendo Testes
+1. **Use marcadores apropriados** para categorizar seus testes
+2. **Nomeie testes descritivamente** - `test_admin_can_create_guest`
+3. **Use fixtures** em vez de configuração manual
+4. **Teste casos felizes E casos de erro**
+5. **Mantenha testes independentes** (sem dependências entre eles)
 
-**📝 Desenvolvido para:** RESTEL - Sistema de Reserva de Hotel  
-**🔧 Tecnologias:** Python, Selenium, pytest, Flask  
-**📅 Última atualização:** Dezembro 2024 
+### Organizando Testes
+1. **Coloque testes na categoria correta** (unit/integration/e2e/api)
+2. **Use classes** para agrupar testes relacionados
+3. **Documente** o que cada teste faz
+4. **Mantenha dados de teste** nas fixtures apropriadas
+
+### Performance
+1. **Use `@pytest.mark.slow`** para testes demorados
+2. **Prefira testes unitários** quando possível
+3. **Use `scope="session"`** para fixtures caras
+4. **Execute testes em paralelo** quando necessário
+
+## 🆘 Solução de Problemas
+
+### Problemas Comuns
+
+#### Erro de Import
+```
+ModuleNotFoundError: No module named 'app'
+```
+**Solução**: Verificar se o PYTHONPATH está configurado corretamente
+
+#### Selenium Não Funciona
+```
+WebDriverException: chrome not reachable
+```
+**Solução**: 
+1. Instalar/atualizar Chrome
+2. Reinstalar webdriver-manager
+3. Verificar se está em modo headless
+
+#### Banco de Dados Não Encontrado
+```
+sqlite3.OperationalError: no such table
+```
+**Solução**: Verificar se as fixtures de banco estão sendo usadas
+
+#### Testes Lentos
+**Solução**:
+1. Usar marcador `@pytest.mark.slow`
+2. Executar apenas testes rápidos: `pytest -m "not slow"`
+3. Paralelizar com pytest-xdist
+
+### Debug de Testes
+```bash
+# Executar com mais detalhes
+pytest tests/ -v --tb=long
+
+# Parar no primeiro erro
+pytest tests/ -x
+
+# Executar apenas testes que falharam
+pytest tests/ --lf
+
+# Mostrar prints
+pytest tests/ -s
+```
+
+## 📈 Métricas e Qualidade
+
+### Cobertura de Código
+- **Meta**: > 80% de cobertura
+- **Foco**: Funcionalidades críticas primeiro
+- **Exclusões**: Arquivos de configuração
+
+### Categorias de Teste
+- **Unit**: 40-50% dos testes
+- **Integration**: 30-40% dos testes  
+- **E2E**: 10-20% dos testes
+- **API**: 10-15% dos testes
+
+### Performance
+- **Testes rápidos**: < 1 segundo
+- **Testes médios**: 1-10 segundos
+- **Testes lentos**: > 10 segundos
+
+## 🔄 Integração Contínua
+
+### GitHub Actions / CI
+```yaml
+- name: Run Tests
+  run: |
+    pytest tests/unit tests/integration -v --tb=short
+    pytest tests/api -v --tb=short
+    # E2E apenas em branch main
+```
+
+### Pre-commit Hook
+```bash
+# Executar testes rápidos antes do commit
+pytest -m "smoke" --tb=short
+```
+
+---
+
+📞 **Suporte**: Para dúvidas sobre os testes, consulte a documentação ou abra uma issue.
+
+🏢 **SWFactory Consultoria e Sistemas Ltda** - Sistema RESTEL 

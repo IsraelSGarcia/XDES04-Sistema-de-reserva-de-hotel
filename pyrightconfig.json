@@ -1,0 +1,14 @@
+{
+  "include": [
+    "src",
+    "tests",
+    "tools"
+  ],
+  "extraPaths": [
+    "src/restel"
+  ],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "warning",
+  "reportMissingTypeStubs": false
+} 
