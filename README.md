@@ -30,7 +30,7 @@ Sistema completo para gerenciamento de hóspedes e administradores do sistema RE
 1. **🚀 Inicialização Simples (Novo!)**
    ```bash
    # Script principal com todas as opções
-   python iniciar.py
+   python tools/iniciar.py
    ```
    
    **Interface unificada com:**
@@ -50,7 +50,7 @@ Sistema completo para gerenciamento de hóspedes e administradores do sistema RE
 3. **🔧 Configuração Manual (Alternativa)**
    ```bash
    # Instale as dependências
-   pip install -r requirements.txt
+   pip install -r config/requirements.txt
    
    # Execute a aplicação
    python src/restel/app.py
@@ -74,14 +74,19 @@ restel/
 │   ├── test_guest_crud.py     # Testes CRUD hóspedes
 │   ├── test_routes.py         # Testes de rotas
 │   ├── test_simple.py         # Testes unitários
-│   ├── pytest.ini            # Configuração pytest
 │   ├── pages/                 # Page Objects (Selenium)
 │   ├── utils/                 # Utilitários de teste
 │   ├── reports/               # Relatórios HTML (auto-limpeza)
 │   └── screenshots/           # Screenshots de falhas
 ├── 🔧 tools/                   # Ferramentas de desenvolvimento
+│   ├── iniciar.py             # Script principal de entrada
 │   ├── setup_dev.py           # Configuração de ambiente
 │   └── test_runner.py         # Executor de testes interativo
+├── ⚙️ config/                  # Configurações do projeto
+│   ├── pytest.ini            # Configuração pytest
+│   ├── pyrightconfig.json     # Configuração Pyright
+│   ├── requirements.txt       # Dependências principais
+│   └── requirements-test.txt  # Dependências de teste
 ├── 💾 data/                    # Banco de dados
 │   └── restel.db              # SQLite database
 ├── 🎨 static/                  # Recursos web estáticos
@@ -93,9 +98,7 @@ restel/
 │   └── CLEANUP_PLAN.md        # Histórico de organização
 ├── 📜 scripts/                 # Scripts legados/utilitários
 ├── 📝 logs/                    # Logs da aplicação
-├── 🚀 iniciar.py               # Script principal de entrada
 ├── 📋 README.md                # Este arquivo
-├── 📦 requirements.txt         # Dependências Python
 └── 🔒 .gitignore              # Controle de versão
 ```
 
@@ -108,7 +111,7 @@ O projeto inclui uma suíte abrangente de testes com um executor interativo.
 ```bash
 python tools/test_runner.py
 # ou através do script principal
-python iniciar.py  # opção 2
+python tools/iniciar.py  # opção 2
 ```
 
 O executor de testes agora está **100% em português** com interface intuitiva:

@@ -84,7 +84,50 @@
 ✅ **Configuração automática de ambiente**
 ✅ **Documentação técnica para desenvolvedores**
 
+### Nova Reorganização: Diretório Principal Limpo ✅ (Recém-Concluída)
+
+**Data**: Atual
+**Objetivo**: Limpar e reorganizar o diretório principal para ter menos arquivos na raiz
+
+#### Mudanças Realizadas:
+
+1. **📁 Nova pasta `config/` criada** para centralizar configurações:
+   - ✅ `pytest.ini` → `config/pytest.ini`
+   - ✅ `pyrightconfig.json` → `config/pyrightconfig.json`
+   - ✅ `requirements.txt` → `config/requirements.txt`
+   - ✅ `requirements-test.txt` → `config/requirements-test.txt`
+   - ✅ Criado `config/README.md` explicativo
+
+2. **🔧 Consolidação na pasta `tools/`**:
+   - ✅ `iniciar.py` → `tools/iniciar.py`
+   - ✅ Scripts de desenvolvimento centralizados
+
+3. **📋 Documentação atualizada**:
+   - ✅ README.md atualizado com nova estrutura
+   - ✅ Caminhos corrigidos em todas as referências
+   - ✅ pytest.ini ajustado para caminhos relativos
+
+#### Estrutura Final do Diretório Principal:
+```
+restel/
+├── README.md              # Documentação principal
+├── .gitignore            # Controle de versão
+├── config/               # ⭐ NOVO: Todas as configurações
+├── tools/                # Scripts e ferramentas
+├── src/                  # Código-fonte
+├── tests/                # Testes
+├── docs/                 # Documentação
+├── data/                 # Banco de dados
+├── static/               # Recursos web
+├── logs/                 # Logs
+└── scripts/              # Scripts legados
+```
+
+**Resultado**: Diretório principal muito mais limpo, apenas 3 arquivos na raiz (.gitignore, README.md e pastas organizadas)
+
 ## Notes
 - Backup important files before deletion
 - Test functionality after each phase
-- Keep core application functionality intact 
+- Keep core application functionality intact
+- All configuration files now centralized in `config/` directory
+- Main scripts moved to `tools/` for better organization 
