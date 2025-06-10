@@ -41,12 +41,12 @@ def test_flask_routes_basic(app_client):
     response = app_client.get('/')
     assert response.status_code == 200
     
-    # Testa rota de login
-    response = app_client.get('/login')
+    # Testa rota de login admin
+    response = app_client.get('/admin/login')
     assert response.status_code == 200
     
-    # Testa rota de cadastro
-    response = app_client.get('/cadastro')
+    # Testa rota de cadastro de hóspede
+    response = app_client.get('/hospede/cadastro')
     assert response.status_code == 200
 
 

@@ -184,7 +184,7 @@ class TestRunner:
         # Verificar arquivos essenciais
         files_to_check = [
             "pytest.ini",
-            "tests/config/conftest.py",
+            "tests/conftest.py",
             "requirements.txt"
         ]
         

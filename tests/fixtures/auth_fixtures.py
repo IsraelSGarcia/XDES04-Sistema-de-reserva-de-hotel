@@ -28,16 +28,7 @@ def guest_credentials():
     }
 
 
-@pytest.fixture
-def app_client(test_database):
-    """Cliente Flask para testes"""
-    from app import app
-    app.config['TESTING'] = True
-    app.config['DATABASE'] = test_database
-    
-    with app.test_client() as client:
-        with app.app_context():
-            yield client
+# app_client fixture is defined in main conftest.py
 
 
 @pytest.fixture
