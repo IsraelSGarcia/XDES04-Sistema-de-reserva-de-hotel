@@ -72,7 +72,7 @@ def show_status():
         'src/restel/app.py',
         'tools/setup_dev.py', 
         'tools/test_runner.py',
-        'requirements.txt',
+        'config/requirements.txt',
         'README.md'
     ]
     print("📄 Arquivos Principais:")
@@ -81,8 +81,6 @@ def show_status():
             print(f"  ✅ {file_name}")
         else:
             print(f"  ❌ {file_name} (ausente)")
-    
-    print()
     
     # Verificar banco
     if Path('data/restel.db').exists():
@@ -145,7 +143,7 @@ def show_tools():
         
     elif choice == '4':
         print("🔄 Atualizando dependências...")
-        os.system('pip install -r requirements.txt --upgrade')
+        os.system('pip install -r config/requirements.txt --upgrade')
     
     input("\nPressione Enter para continuar...")
 
