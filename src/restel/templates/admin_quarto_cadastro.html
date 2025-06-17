@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastrar Quarto - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-1">
+                                <i class="fas fa-bed me-2"></i>Cadastrar Novo Quarto
+                            </h1>
+                            <p class="mb-0">
+                                Adicione um novo quarto ao sistema
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ url_for('gerenciar_quartos') }}" class="btn btn-light">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar à Lista
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário de Cadastro -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus me-2"></i>Dados do Quarto
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('processar_cadastro_quarto') }}">
+                        <div class="row g-3">
+                            <!-- Número do Quarto -->
+                            <div class="col-md-6">
+                                <label for="numero" class="form-label">
+                                    <i class="fas fa-door-open me-1"></i>Número do Quarto <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="numero" name="numero" 
+                                       required placeholder="Ex: 101, A15, etc.">
+                                <div class="form-text">
+                                    Identificador único do quarto
+                                </div>
+                            </div>
+
+                            <!-- Tipo do Quarto -->
+                            <div class="col-md-6">
+                                <label for="tipo" class="form-label">
+                                    <i class="fas fa-tag me-1"></i>Tipo do Quarto <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="tipo" name="tipo" 
+                                       required placeholder="Ex: Standard, Suíte, Luxo">
+                                <div class="form-text">
+                                    Categoria ou classificação do quarto
+                                </div>
+                            </div>
+
+                            <!-- Capacidade -->
+                            <div class="col-md-6">
+                                <label for="capacidade" class="form-label">
+                                    <i class="fas fa-users me-1"></i>Capacidade <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="capacidade" name="capacidade" required>
+                                    <option value="">Selecione a capacidade</option>
+                                    <option value="1">1 pessoa</option>
+                                    <option value="2">2 pessoas</option>
+                                    <option value="3">3 pessoas</option>
+                                    <option value="4">4 pessoas</option>
+                                    <option value="5">5 pessoas</option>
+                                    <option value="6">6 pessoas</option>
+                                </select>
+                                <div class="form-text">
+                                    Número máximo de hóspedes
+                                </div>
+                            </div>
+
+                            <!-- Preço da Diária -->
+                            <div class="col-md-6">
+                                <label for="preco_diaria" class="form-label">
+                                    <i class="fas fa-dollar-sign me-1"></i>Preço da Diária <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" class="form-control" id="preco_diaria" name="preco_diaria" 
+                                           step="0.01" min="0" required placeholder="150.00">
+                                </div>
+                                <div class="form-text">
+                                    Valor por diária em reais
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-12">
+                                <label for="status" class="form-label">
+                                    <i class="fas fa-info-circle me-1"></i>Status Inicial <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="">Selecione o status</option>
+                                    <option value="Disponível" selected>Disponível</option>
+                                    <option value="Manutenção">Manutenção</option>
+                                </select>
+                                <div class="form-text">
+                                    Status atual do quarto
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{{ url_for('gerenciar_quartos') }}" class="btn btn-secondary me-md-2">
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-2"></i>Cadastrar Quarto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dicas -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Dicas Importantes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Número do Quarto:</strong> Use uma identificação única e clara (ex: 101, 102, Suíte A).</li>
+                        <li><strong>Tipo:</strong> Categorize seus quartos para facilitar a busca dos hóspedes.</li>
+                        <li><strong>Preço:</strong> Defina um valor competitivo considerando as comodidades oferecidas.</li>
+                        <li><strong>Status:</strong> Quartos novos geralmente começam como "Disponível".</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validação do formulário
+document.getElementById('numero').addEventListener('input', function(e) {
+    // Remove caracteres especiais e mantém apenas letras e números
+    e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+});
+
+// Formatação do preço
+document.getElementById('preco_diaria').addEventListener('input', function(e) {
+    let value = parseFloat(e.target.value);
+    if (value < 0) {
+        e.target.value = 0;
+    }
+});
+</script>
+{% endblock %} 

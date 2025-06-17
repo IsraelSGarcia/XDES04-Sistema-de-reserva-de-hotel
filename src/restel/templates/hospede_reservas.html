@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Minhas Reservas - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-1">
+                                <i class="fas fa-calendar-check me-2"></i>Minhas Reservas
+                            </h1>
+                            <p class="mb-0">
+                                Visualize e gerencie suas reservas
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ url_for('painel_hospede') }}" class="btn btn-light">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar ao Painel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão Nova Reserva -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="text-end">
+                <a href="{{ url_for('nova_reserva_hospede') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Nova Reserva
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Reservas -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Suas Reservas ({{ reservas|length }} encontradas)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if reservas %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Reserva</th>
+                                        <th>Quarto</th>
+                                        <th>Check-in</th>
+                                        <th>Check-out</th>
+                                        <th>Hóspedes</th>
+                                        <th>Valor Total</th>
+                                        <th>Status</th>
+                                        <th class="text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reserva in reservas %}
+                                    <tr>
+                                        <td><strong>#{{ reserva.id }}</strong></td>
+                                        <td>
+                                            <strong>{{ reserva.quarto_numero }}</strong><br>
+                                            <small class="text-muted">{{ reserva.quarto_tipo }}</small>
+                                        </td>
+                                        <td>{{ reserva.data_checkin }}</td>
+                                        <td>{{ reserva.data_checkout }}</td>
+                                        <td>
+                                            <i class="fas fa-users me-1"></i>{{ reserva.numero_hospedes }}
+                                        </td>
+                                        <td>
+                                            <strong>R$ {{ reserva.valor_total|round(2) }}</strong>
+                                        </td>
+                                        <td>
+                                            {% if reserva.status == 'Ativa' %}
+                                                <span class="badge bg-success">{{ reserva.status }}</span>
+                                            {% elif reserva.status == 'Check-in' %}
+                                                <span class="badge bg-primary">Em Andamento</span>
+                                            {% elif reserva.status == 'Check-out' %}
+                                                <span class="badge bg-info">Concluída</span>
+                                            {% elif reserva.status == 'Cancelada' %}
+                                                <span class="badge bg-danger">{{ reserva.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            {% if reserva.pode_editar %}
+                                                <!-- Reserva pode ser editada/cancelada -->
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ url_for('editar_reserva_hospede', reserva_id=reserva.id) }}" 
+                                                       class="btn btn-outline-primary btn-sm" 
+                                                       title="Editar reserva">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button type="button" 
+                                                            class="btn btn-outline-danger btn-sm" 
+                                                            title="Cancelar reserva"
+                                                            data-reserva-id="{{ reserva.id }}"
+                                                            onclick="confirmarCancelamento(this.getAttribute('data-reserva-id'))">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            {% elif reserva.status == 'Ativa' %}
+                                                <!-- Reserva ativa mas fora do prazo de 24h -->
+                                                <small class="text-warning">
+                                                    <i class="fas fa-clock me-1"></i>Prazo expirado
+                                                </small>
+                                            {% elif reserva.status in ['Check-in', 'Check-out', 'Cancelada'] %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-plus fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Você ainda não possui reservas</h5>
+                            <p class="text-muted">Que tal fazer sua primeira reserva?</p>
+                            <a href="{{ url_for('nova_reserva_hospede') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Fazer Primera Reserva
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações Importantes -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Informações Importantes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Edição/Cancelamento:</strong> Você pode editar ou cancelar suas reservas até 24 horas antes do check-in.</li>
+                        <li><strong>Check-in:</strong> Será processado pela recepção a partir das 14:00h da data agendada.</li>
+                        <li><strong>Check-out:</strong> Deve ser realizado até às 12:00h da data de saída.</li>
+                        <li><strong>Dúvidas:</strong> Entre em contato com a recepção para esclarecimentos.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Cancelamento -->
+<div class="modal fade" id="modalCancelamento" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Cancelamento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja cancelar esta reserva?</p>
+                <p class="text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Esta ação não pode ser desfeita.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Não
+                </button>
+                <form id="formCancelamento" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-check me-2"></i>Sim, Cancelar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmarCancelamento(reservaId) {
+    document.getElementById('formCancelamento').action = `/hospede/reserva/${reservaId}/cancelar`;
+    var modal = new bootstrap.Modal(document.getElementById('modalCancelamento'));
+    modal.show();
+}
+</script>
+{% endblock %} 

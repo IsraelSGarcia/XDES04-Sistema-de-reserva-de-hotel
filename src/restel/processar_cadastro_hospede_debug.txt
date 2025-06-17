@@ -18,3 +18,19 @@ Request Content-Type: application/x-www-form-urlencoded
 DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
 Request form: {'nome_completo': 'fcgvhbjk', 'email': 'yguhijok@vghbj.com', 'cpf': '345.323.452-44', 'telefone': '(34) 56789-098767', 'senha': 'asfdfdf'}
 Request Content-Type: application/x-www-form-urlencoded
+--- HIT at 2025-06-17 08:36:19.171027 ---
+DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
+Request form: {'nome_completo': 'fcgvhbjk', 'email': 'dfvsdf@gmail.com', 'cpf': '645.556.765-31', 'telefone': '(76) 54345-6543', 'senha': 'fgsgfgsg'}
+Request Content-Type: application/x-www-form-urlencoded
+--- HIT at 2025-06-17 09:02:51.725620 ---
+DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
+Request form: {'nome_completo': 'dtfyguij', 'email': 'fyguhijok@guhi.com', 'cpf': '354.543.543-52', 'telefone': '(45) 54545-4545', 'senha': 'admin123'}
+Request Content-Type: application/x-www-form-urlencoded
+--- HIT at 2025-06-17 09:41:51.855069 ---
+DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
+Request form: {'nome_completo': 'dtfyguij', 'email': 'dfvsdf@gmail.com', 'cpf': '454.354.353-45', 'telefone': '(34) 56789-098767', 'senha': 'fgsgfgsg'}
+Request Content-Type: application/x-www-form-urlencoded
+--- HIT at 2025-06-17 09:43:58.244593 ---
+DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
+Request form: {'nome_completo': 'osd adhisd a isajd', 'email': 'oia@oia.com', 'cpf': '342.343.243-43', 'telefone': '(34) 23423-4343', 'senha': 'admin123'}
+Request Content-Type: application/x-www-form-urlencoded

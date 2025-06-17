@@ -1,0 +1,119 @@
+/* Estilos para o Calendário de Disponibilidade */
+
+.calendario-dia {
+    position: relative;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 35px;
+    min-height: 35px;
+    vertical-align: middle;
+}
+
+.calendario-dia:hover:not(.table-secondary):not(.table-danger) {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+.calendario-dia.table-success {
+    background-color: #d4edda !important;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
+.calendario-dia.table-success:hover {
+    background-color: #c3e6cb !important;
+    cursor: pointer;
+}
+
+.calendario-dia.table-danger {
+    background-color: #f8d7da !important;
+    color: #721c24;
+    border-color: #f5c6cb;
+    position: relative;
+}
+
+.calendario-dia.table-danger::after {
+    content: '×';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.calendario-dia.table-primary {
+    background-color: #cce7ff !important;
+    color: #004085;
+    border-color: #b3d7ff;
+    font-weight: bold;
+}
+
+.calendario-dia.table-secondary {
+    background-color: #e2e3e5 !important;
+    color: #6c757d;
+    border-color: #d6d8db;
+}
+
+/* Melhorar aparência das tabelas do calendário */
+.table-bordered td {
+    border: 1px solid #dee2e6;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #495057;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .calendario-dia {
+        min-width: 30px;
+        min-height: 30px;
+        font-size: 0.875rem;
+    }
+    
+    .table-sm td {
+        padding: 0.25rem;
+    }
+}
+
+/* Animação suave para mudanças de estado */
+.calendario-dia {
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+/* Destaque especial para o período selecionado */
+.calendario-dia.table-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: white !important;
+    border-color: #0056b3;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+/* Tooltip customizado */
+.calendario-dia[title] {
+    position: relative;
+}
+
+/* Indicador visual para dias com conflito */
+.calendario-dia.conflito::before {
+    content: '!';
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #ffc107;
+    background: #fff;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+} 

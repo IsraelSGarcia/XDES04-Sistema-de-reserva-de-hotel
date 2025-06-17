@@ -1,0 +1,727 @@
+{
+  "id": "restel-hotel-tests",
+  "version": "2.0",
+  "name": "RESTEL Hotel System Tests",
+  "url": "http://localhost:5000",
+  "tests": [
+    {
+      "id": "tc001-admin-login",
+      "name": "TC001 - Login Administrador",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/admin/login",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "type",
+          "target": "id=email",
+          "value": "admin@restel.com"
+        },
+        {
+          "id": "3",
+          "command": "type",
+          "target": "id=senha",
+          "value": "admin123"
+        },
+        {
+          "id": "4",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "5",
+          "command": "waitForElementVisible",
+          "target": "css=h1",
+          "value": "3000"
+        },
+        {
+          "id": "6",
+          "command": "verifyText",
+          "target": "css=h1",
+          "value": "Painel Administrativo"
+        }
+      ]
+    },
+    {
+      "id": "tc002-criar-quarto",
+      "name": "TC002 - Cadastrar Quarto Positivo",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/admin/login",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "type",
+          "target": "id=email",
+          "value": "admin@restel.com"
+        },
+        {
+          "id": "3",
+          "command": "type",
+          "target": "id=senha",
+          "value": "admin123"
+        },
+        {
+          "id": "4",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "5",
+          "command": "click",
+          "target": "link=Quartos",
+          "value": ""
+        },
+        {
+          "id": "6",
+          "command": "click",
+          "target": "link=Novo Quarto",
+          "value": ""
+        },
+        {
+          "id": "7",
+          "command": "type",
+          "target": "id=numero",
+          "value": "101"
+        },
+        {
+          "id": "8",
+          "command": "select",
+          "target": "id=tipo",
+          "value": "Standard"
+        },
+        {
+          "id": "9",
+          "command": "type",
+          "target": "id=capacidade",
+          "value": "2"
+        },
+        {
+          "id": "10",
+          "command": "type",
+          "target": "id=preco_diaria",
+          "value": "150.00"
+        },
+        {
+          "id": "11",
+          "command": "select",
+          "target": "id=status",
+          "value": "Disponível"
+        },
+        {
+          "id": "12",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "13",
+          "command": "waitForElementVisible",
+          "target": "css=.alert-success",
+          "value": "3000"
+        },
+        {
+          "id": "14",
+          "command": "verifyElementPresent",
+          "target": "css=.alert-success",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc003-validacao-campos",
+      "name": "TC003 - Validação Campos Obrigatórios",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/admin/login",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "type",
+          "target": "id=email",
+          "value": "admin@restel.com"
+        },
+        {
+          "id": "3",
+          "command": "type",
+          "target": "id=senha",
+          "value": "admin123"
+        },
+        {
+          "id": "4",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "5",
+          "command": "click",
+          "target": "link=Quartos",
+          "value": ""
+        },
+        {
+          "id": "6",
+          "command": "click",
+          "target": "link=Novo Quarto",
+          "value": ""
+        },
+        {
+          "id": "7",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "8",
+          "command": "verifyElementPresent",
+          "target": "css=input:invalid",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc005-listar-quartos",
+      "name": "TC005 - Listar Quartos",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/admin/login",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "type",
+          "target": "id=email",
+          "value": "admin@restel.com"
+        },
+        {
+          "id": "3",
+          "command": "type",
+          "target": "id=senha",
+          "value": "admin123"
+        },
+        {
+          "id": "4",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "5",
+          "command": "click",
+          "target": "link=Quartos",
+          "value": ""
+        },
+        {
+          "id": "6",
+          "command": "verifyElementPresent",
+          "target": "css=table",
+          "value": ""
+        },
+        {
+          "id": "7",
+          "command": "verifyText",
+          "target": "css=th:nth-child(1)",
+          "value": "Número"
+        },
+        {
+          "id": "8",
+          "command": "verifyText",
+          "target": "css=th:nth-child(2)",
+          "value": "Tipo"
+        },
+        {
+          "id": "9",
+          "command": "verifyElementPresent",
+          "target": "css=.btn-warning",
+          "value": ""
+        },
+        {
+          "id": "10",
+          "command": "verifyElementPresent",
+          "target": "css=.btn-danger",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc006-buscar-quarto",
+      "name": "TC006 - Buscar Quarto por Número",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/admin/login",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "type",
+          "target": "id=email",
+          "value": "admin@restel.com"
+        },
+        {
+          "id": "3",
+          "command": "type",
+          "target": "id=senha",
+          "value": "admin123"
+        },
+        {
+          "id": "4",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "5",
+          "command": "click",
+          "target": "link=Quartos",
+          "value": ""
+        },
+        {
+          "id": "6",
+          "command": "type",
+          "target": "name=busca",
+          "value": "101"
+        },
+        {
+          "id": "7",
+          "command": "click",
+          "target": "css=button.btn-primary",
+          "value": ""
+        },
+        {
+          "id": "8",
+          "command": "waitForElementVisible",
+          "target": "css=table tbody tr",
+          "value": "3000"
+        }
+      ]
+    },
+    {
+      "id": "tc024-hospede-login",
+      "name": "TC024 - Login Hóspede",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/hospede/login",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "type",
+          "target": "id=email",
+          "value": "hospede@teste.com"
+        },
+        {
+          "id": "3",
+          "command": "type",
+          "target": "id=senha",
+          "value": "123456"
+        },
+        {
+          "id": "4",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "5",
+          "command": "waitForElementVisible",
+          "target": "css=h1",
+          "value": "3000"
+        },
+        {
+          "id": "6",
+          "command": "verifyText",
+          "target": "css=h1",
+          "value": "Painel do Hóspede"
+        }
+      ]
+    },
+    {
+      "id": "tc025-nova-reserva-hospede",
+      "name": "TC025 - Nova Reserva Hóspede",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/hospede/login",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "type",
+          "target": "id=email",
+          "value": "hospede@teste.com"
+        },
+        {
+          "id": "3",
+          "command": "type",
+          "target": "id=senha",
+          "value": "123456"
+        },
+        {
+          "id": "4",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "5",
+          "command": "click",
+          "target": "link=Nova Reserva",
+          "value": ""
+        },
+        {
+          "id": "6",
+          "command": "select",
+          "target": "id=quarto_id",
+          "value": "index=1"
+        },
+        {
+          "id": "7",
+          "command": "type",
+          "target": "id=data_checkin",
+          "value": "2024-12-25"
+        },
+        {
+          "id": "8",
+          "command": "type",
+          "target": "id=data_checkout",
+          "value": "2024-12-27"
+        },
+        {
+          "id": "9",
+          "command": "select",
+          "target": "id=numero_hospedes",
+          "value": "2"
+        },
+        {
+          "id": "10",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "11",
+          "command": "waitForElementVisible",
+          "target": "css=.alert-success",
+          "value": "3000"
+        }
+      ]
+    },
+    {
+      "id": "tc026-minhas-reservas",
+      "name": "TC026 - Visualizar Minhas Reservas",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/hospede/login",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "type",
+          "target": "id=email",
+          "value": "hospede@teste.com"
+        },
+        {
+          "id": "3",
+          "command": "type",
+          "target": "id=senha",
+          "value": "123456"
+        },
+        {
+          "id": "4",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "5",
+          "command": "click",
+          "target": "link=Minhas Reservas",
+          "value": ""
+        },
+        {
+          "id": "6",
+          "command": "verifyElementPresent",
+          "target": "css=table",
+          "value": ""
+        },
+        {
+          "id": "7",
+          "command": "verifyText",
+          "target": "css=th:nth-child(1)",
+          "value": "ID"
+        },
+        {
+          "id": "8",
+          "command": "verifyText",
+          "target": "css=th:nth-child(2)",
+          "value": "Quarto"
+        }
+      ]
+    },
+    {
+      "id": "tc013-admin-nova-reserva",
+      "name": "TC013 - Admin Nova Reserva",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/admin/login",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "type",
+          "target": "id=email",
+          "value": "admin@restel.com"
+        },
+        {
+          "id": "3",
+          "command": "type",
+          "target": "id=senha",
+          "value": "admin123"
+        },
+        {
+          "id": "4",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "5",
+          "command": "click",
+          "target": "link=Reservas",
+          "value": ""
+        },
+        {
+          "id": "6",
+          "command": "click",
+          "target": "link=Nova Reserva",
+          "value": ""
+        },
+        {
+          "id": "7",
+          "command": "select",
+          "target": "id=hospede_id",
+          "value": "index=1"
+        },
+        {
+          "id": "8",
+          "command": "select",
+          "target": "id=quarto_id",
+          "value": "index=1"
+        },
+        {
+          "id": "9",
+          "command": "type",
+          "target": "id=data_checkin",
+          "value": "2024-12-20"
+        },
+        {
+          "id": "10",
+          "command": "type",
+          "target": "id=data_checkout",
+          "value": "2024-12-22"
+        },
+        {
+          "id": "11",
+          "command": "select",
+          "target": "id=numero_hospedes",
+          "value": "2"
+        },
+        {
+          "id": "12",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "13",
+          "command": "waitForElementVisible",
+          "target": "css=.alert-success",
+          "value": "3000"
+        }
+      ]
+    },
+    {
+      "id": "tc017-listar-reservas-admin",
+      "name": "TC017 - Listar Reservas Admin",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/admin/login",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "type",
+          "target": "id=email",
+          "value": "admin@restel.com"
+        },
+        {
+          "id": "3",
+          "command": "type",
+          "target": "id=senha",
+          "value": "admin123"
+        },
+        {
+          "id": "4",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "value": ""
+        },
+        {
+          "id": "5",
+          "command": "click",
+          "target": "link=Reservas",
+          "value": ""
+        },
+        {
+          "id": "6",
+          "command": "verifyElementPresent",
+          "target": "css=table",
+          "value": ""
+        },
+        {
+          "id": "7",
+          "command": "verifyText",
+          "target": "css=th:nth-child(1)",
+          "value": "ID"
+        },
+        {
+          "id": "8",
+          "command": "verifyText",
+          "target": "css=th:nth-child(2)",
+          "value": "Hóspede"
+        },
+        {
+          "id": "9",
+          "command": "verifyElementPresent",
+          "target": "css=.btn-warning",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc034-acesso-nao-autorizado",
+      "name": "TC034 - Acesso Não Autorizado",
+      "commands": [
+        {
+          "id": "1",
+          "command": "open",
+          "target": "/admin/quartos",
+          "value": ""
+        },
+        {
+          "id": "2",
+          "command": "waitForElementVisible",
+          "target": "css=h1",
+          "value": "3000"
+        },
+        {
+          "id": "3",
+          "command": "verifyText",
+          "target": "css=h1",
+          "value": "Login Administrativo"
+        },
+        {
+          "id": "4",
+          "command": "verifyElementPresent",
+          "target": "id=email",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "suite-quartos",
+      "name": "Suite CRUD Quartos",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "tc001-admin-login",
+        "tc002-criar-quarto",
+        "tc003-validacao-campos",
+        "tc005-listar-quartos",
+        "tc006-buscar-quarto"
+      ]
+    },
+    {
+      "id": "suite-reservas-admin",
+      "name": "Suite Reservas Admin",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "tc001-admin-login",
+        "tc013-admin-nova-reserva",
+        "tc017-listar-reservas-admin"
+      ]
+    },
+    {
+      "id": "suite-hospede",
+      "name": "Suite Área Hóspede",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "tc024-hospede-login",
+        "tc025-nova-reserva-hospede",
+        "tc026-minhas-reservas"
+      ]
+    },
+    {
+      "id": "suite-seguranca",
+      "name": "Suite Segurança",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "tc034-acesso-nao-autorizado"
+      ]
+    },
+    {
+      "id": "suite-completa",
+      "name": "Suite Completa",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 600,
+      "tests": [
+        "tc001-admin-login",
+        "tc002-criar-quarto",
+        "tc005-listar-quartos",
+        "tc024-hospede-login",
+        "tc025-nova-reserva-hospede",
+        "tc013-admin-nova-reserva",
+        "tc017-listar-reservas-admin",
+        "tc034-acesso-nao-autorizado"
+      ]
+    }
+  ],
+  "urls": [
+    "http://localhost:5000"
+  ],
+  "plugins": []
+} 

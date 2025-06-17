@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Reserva #{{ reserva.id }} - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-1">
+                                <i class="fas fa-edit me-2"></i>Editar Reserva #{{ reserva.id }}
+                            </h1>
+                            <p class="mb-0">
+                                Altere as informações da reserva
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ url_for('gerenciar_reservas') }}" class="btn btn-light">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar à Lista
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário de Edição -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Dados da Reserva
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('processar_edicao_reserva', reserva_id=reserva.id) }}">
+                        <div class="row g-3">
+                            <!-- Hóspede (Somente Leitura) -->
+                            <div class="col-md-6">
+                                <label for="hospede_nome" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Hóspede
+                                </label>
+                                <input type="text" class="form-control" id="hospede_nome" 
+                                       value="{{ reserva.hospede_nome }}" readonly>
+                                <div class="form-text text-muted">
+                                    <i class="fas fa-lock me-1"></i>O hóspede não pode ser alterado
+                                </div>
+                            </div>
+
+                            <!-- Quarto (Somente Leitura) -->
+                            <div class="col-md-6">
+                                <label for="quarto_numero" class="form-label">
+                                    <i class="fas fa-bed me-1"></i>Quarto
+                                </label>
+                                <input type="text" class="form-control" id="quarto_numero" 
+                                       value="{{ reserva.quarto_numero }}" readonly>
+                                <div class="form-text text-muted">
+                                    <i class="fas fa-lock me-1"></i>O quarto não pode ser alterado
+                                </div>
+                            </div>
+
+                            <!-- Data Check-in -->
+                            <div class="col-md-6">
+                                <label for="data_checkin" class="form-label">
+                                    <i class="fas fa-calendar-plus me-1"></i>Data de Check-in <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="data_checkin" name="data_checkin" 
+                                       value="{{ reserva.data_checkin }}" required>
+                                <div class="form-text">
+                                    Data de entrada do hóspede
+                                </div>
+                            </div>
+
+                            <!-- Data Check-out -->
+                            <div class="col-md-6">
+                                <label for="data_checkout" class="form-label">
+                                    <i class="fas fa-calendar-minus me-1"></i>Data de Check-out <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="data_checkout" name="data_checkout" 
+                                       value="{{ reserva.data_checkout }}" required>
+                                <div class="form-text">
+                                    Data de saída do hóspede
+                                </div>
+                            </div>
+
+                            <!-- Número de Hóspedes -->
+                            <div class="col-md-6">
+                                <label for="numero_hospedes" class="form-label">
+                                    <i class="fas fa-users me-1"></i>Número de Hóspedes <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="numero_hospedes" name="numero_hospedes" required>
+                                    <option value="">Selecione o número de hóspedes</option>
+                                    <option value="1" {% if reserva.numero_hospedes == 1 %}selected{% endif %}>1 pessoa</option>
+                                    <option value="2" {% if reserva.numero_hospedes == 2 %}selected{% endif %}>2 pessoas</option>
+                                    <option value="3" {% if reserva.numero_hospedes == 3 %}selected{% endif %}>3 pessoas</option>
+                                    <option value="4" {% if reserva.numero_hospedes == 4 %}selected{% endif %}>4 pessoas</option>
+                                    <option value="5" {% if reserva.numero_hospedes == 5 %}selected{% endif %}>5 pessoas</option>
+                                    <option value="6" {% if reserva.numero_hospedes == 6 %}selected{% endif %}>6 pessoas</option>
+                                </select>
+                                <div class="form-text">
+                                    Deve respeitar a capacidade do quarto
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6">
+                                <label for="status" class="form-label">
+                                    <i class="fas fa-info-circle me-1"></i>Status <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="">Selecione o status</option>
+                                    <option value="Ativa" {% if reserva.status == 'Ativa' %}selected{% endif %}>Ativa</option>
+                                    <option value="Check-in" {% if reserva.status == 'Check-in' %}selected{% endif %}>Check-in</option>
+                                    <option value="Check-out" {% if reserva.status == 'Check-out' %}selected{% endif %}>Check-out</option>
+                                    <option value="Cancelada" {% if reserva.status == 'Cancelada' %}selected{% endif %}>Cancelada</option>
+                                </select>
+                                <div class="form-text">
+                                    Status atual da reserva
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informações Adicionais -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-info-circle me-2"></i>Informações da Reserva
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <p class="mb-1"><strong>ID da Reserva:</strong> #{{ reserva.id }}</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p class="mb-1"><strong>Data da Reserva:</strong> {{ reserva.data_reserva.split(' ')[0] if reserva.data_reserva else 'N/A' }}</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p class="mb-1"><strong>Valor Total:</strong> 
+                                                <span class="fw-bold">R$ {{ reserva.valor_total }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{{ url_for('gerenciar_reservas') }}" class="btn btn-secondary me-md-2">
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Salvar Alterações
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Atenção
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Hóspede e Quarto:</strong> Não podem ser alterados após a criação da reserva.</li>
+                        <li><strong>Check-in:</strong> Altera automaticamente o status do quarto para "Ocupado".</li>
+                        <li><strong>Check-out:</strong> Libera o quarto para novas reservas.</li>
+                        <li><strong>Datas:</strong> Verificar conflitos com outras reservas do mesmo quarto.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validação de datas
+document.getElementById('data_checkin').addEventListener('change', function() {
+    const checkinDate = this.value;
+    const checkoutInput = document.getElementById('data_checkout');
+    
+    if (checkinDate) {
+        // Definir data mínima do checkout como dia seguinte ao checkin
+        const nextDay = new Date(checkinDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        checkoutInput.min = nextDay.toISOString().split('T')[0];
+        
+        // Limpar checkout se for anterior ao novo checkin
+        if (checkoutInput.value && checkoutInput.value <= checkinDate) {
+            checkoutInput.value = '';
+        }
+    }
+});
+
+// Confirmação para mudanças críticas de status
+document.getElementById('status').addEventListener('change', function(e) {
+    const originalStatus = '{{ reserva.status }}';
+    const newStatus = e.target.value;
+    
+    if (originalStatus !== newStatus) {
+        let message = '';
+        
+        if (newStatus === 'Check-in') {
+            message = 'Confirma o check-in? O quarto será marcado como ocupado.';
+        } else if (newStatus === 'Check-out') {
+            message = 'Confirma o check-out? O quarto será liberado para novas reservas.';
+        } else if (newStatus === 'Cancelada') {
+            message = 'Tem certeza que deseja cancelar esta reserva?';
+        }
+        
+        if (message && !confirm(message)) {
+            e.target.value = originalStatus; // Voltar ao valor original
+        }
+    }
+});
+</script>
+{% endblock %} 

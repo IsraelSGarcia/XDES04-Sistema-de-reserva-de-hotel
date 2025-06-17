@@ -43,6 +43,37 @@ def init_db():
         )
     ''')
     
+    # Tabela de quartos
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS quartos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            numero TEXT UNIQUE NOT NULL,
+            tipo TEXT NOT NULL,
+            capacidade INTEGER NOT NULL,
+            preco_diaria DECIMAL(10,2) NOT NULL,
+            status TEXT NOT NULL CHECK(status IN ('Disponível', 'Ocupado', 'Manutenção')),
+            ativo BOOLEAN DEFAULT 1,
+            data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Tabela de reservas
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reservas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            hospede_id INTEGER NOT NULL,
+            quarto_id INTEGER NOT NULL,
+            data_checkin DATE NOT NULL,
+            data_checkout DATE NOT NULL,
+            numero_hospedes INTEGER NOT NULL,
+            valor_total DECIMAL(10,2) NOT NULL,
+            status TEXT NOT NULL CHECK(status IN ('Ativa', 'Cancelada', 'Check-in', 'Check-out')),
+            data_reserva TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (hospede_id) REFERENCES hospedes (id),
+            FOREIGN KEY (quarto_id) REFERENCES quartos (id)
+        )
+    ''')
+    
     # Criar administrador Master padrão se não existir
     cursor.execute('SELECT COUNT(*) FROM administradores WHERE perfil = "Master"')
     if cursor.fetchone()[0] == 0:
@@ -165,6 +196,406 @@ def processar_cadastro_hospede():
     
     flash('Cadastro realizado com sucesso!', 'success')
     return redirect(url_for('index'))
+
+@app.route('/hospede/login')
+def login_hospede():
+    """Formulário de login de hóspede"""
+    return render_template('hospede_login.html')
+
+@app.route('/hospede/login', methods=['POST'])
+def processar_login_hospede():
+    """Processa o login de hóspede"""
+    email = request.form['email'].strip().lower()
+    senha = request.form['senha']
+    
+    # Validações básicas
+    if not email or not senha:
+        flash('Email e senha são obrigatórios!', 'error')
+        return redirect(url_for('login_hospede'))
+    
+    conn = get_db_connection()
+    hospede = conn.execute('SELECT * FROM hospedes WHERE email = ? AND ativo = 1', (email,)).fetchone()
+    conn.close()
+    
+    if hospede and check_password_hash(hospede['senha'], senha):
+        # Login bem-sucedido
+        session['hospede_id'] = hospede['id']
+        session['hospede_nome'] = hospede['nome_completo']
+        flash(f'Bem-vindo(a), {hospede["nome_completo"]}!', 'success')
+        return redirect(url_for('painel_hospede'))
+    else:
+        flash('Email ou senha incorretos!', 'error')
+        return redirect(url_for('login_hospede'))
+
+@app.route('/hospede/logout')
+def logout_hospede():
+    """Logout de hóspede"""
+    if 'hospede_id' in session:
+        del session['hospede_id']
+        del session['hospede_nome']
+    flash('Logout realizado com sucesso!', 'success')
+    return redirect(url_for('index'))
+
+@app.route('/hospede/painel')
+def painel_hospede():
+    """Painel do hóspede"""
+    if 'hospede_id' not in session:
+        flash('Acesso negado! Faça login como hóspede.', 'error')
+        return redirect(url_for('login_hospede'))
+    
+    conn = get_db_connection()
+    
+    # Estatísticas das reservas do hóspede
+    hospede_id = session['hospede_id']
+    reservas_ativas = conn.execute('SELECT COUNT(*) FROM reservas WHERE hospede_id = ? AND status = "Ativa"', (hospede_id,)).fetchone()[0]
+    reservas_concluidas = conn.execute('SELECT COUNT(*) FROM reservas WHERE hospede_id = ? AND status = "Check-out"', (hospede_id,)).fetchone()[0]
+    reservas_canceladas = conn.execute('SELECT COUNT(*) FROM reservas WHERE hospede_id = ? AND status = "Cancelada"', (hospede_id,)).fetchone()[0]
+    
+    # Próximas reservas
+    proximas_reservas = conn.execute('''
+        SELECT r.*, q.numero as quarto_numero, q.tipo as quarto_tipo
+        FROM reservas r
+        JOIN quartos q ON r.quarto_id = q.id
+        WHERE r.hospede_id = ? AND r.status IN ('Ativa', 'Check-in')
+        AND r.data_checkin >= date('now')
+        ORDER BY r.data_checkin ASC
+        LIMIT 3
+    ''', (hospede_id,)).fetchall()
+    
+    conn.close()
+    
+    return render_template('hospede_painel.html',
+                         reservas_ativas=reservas_ativas,
+                         reservas_concluidas=reservas_concluidas,
+                         reservas_canceladas=reservas_canceladas,
+                         proximas_reservas=proximas_reservas)
+
+@app.route('/hospede/reserva/nova')
+def nova_reserva_hospede():
+    """Formulário para hóspede fazer nova reserva"""
+    if 'hospede_id' not in session:
+        flash('Acesso negado! Faça login para fazer uma reserva.', 'error')
+        return redirect(url_for('login_hospede'))
+    
+    conn = get_db_connection()
+    quartos = conn.execute('SELECT * FROM quartos WHERE ativo = 1 AND status = "Disponível" ORDER BY numero').fetchall()
+    conn.close()
+    
+    return render_template('hospede_reserva_nova.html', quartos=quartos)
+
+@app.route('/api/disponibilidade/<int:quarto_id>')
+def api_disponibilidade_quarto(quarto_id):
+    """API que retorna períodos ocupados de um quarto"""
+    conn = get_db_connection()
+    
+    # Buscar reservas ativas do quarto
+    reservas = conn.execute('''
+        SELECT data_checkin, data_checkout 
+        FROM reservas 
+        WHERE quarto_id = ? AND status IN ('Ativa', 'Check-in')
+        ORDER BY data_checkin
+    ''', (quarto_id,)).fetchall()
+    
+    conn.close()
+    
+    # Converter para formato JSON
+    periodos_ocupados = []
+    for reserva in reservas:
+        periodos_ocupados.append({
+            'start': reserva['data_checkin'],
+            'end': reserva['data_checkout']
+        })
+    
+    return {'periodos_ocupados': periodos_ocupados}
+
+@app.route('/hospede/reserva/nova', methods=['POST'])
+def processar_nova_reserva_hospede():
+    """Processa nova reserva feita pelo hóspede"""
+    if 'hospede_id' not in session:
+        flash('Acesso negado! Faça login para fazer uma reserva.', 'error')
+        return redirect(url_for('login_hospede'))
+    
+    hospede_id = session['hospede_id']
+    quarto_id = request.form['quarto_id']
+    data_checkin = request.form['data_checkin']
+    data_checkout = request.form['data_checkout']
+    numero_hospedes = request.form['numero_hospedes']
+    
+    # Validações
+    if not quarto_id or not data_checkin or not data_checkout or not numero_hospedes:
+        flash('Todos os campos são obrigatórios!', 'error')
+        return redirect(url_for('nova_reserva_hospede'))
+    
+    try:
+        from datetime import datetime
+        checkin = datetime.strptime(data_checkin, '%Y-%m-%d').date()
+        checkout = datetime.strptime(data_checkout, '%Y-%m-%d').date()
+        numero_hospedes = int(numero_hospedes)
+    except ValueError:
+        flash('Datas ou número de hóspedes inválidos!', 'error')
+        return redirect(url_for('nova_reserva_hospede'))
+    
+    if checkin >= checkout:
+        flash('Data de check-out deve ser posterior ao check-in!', 'error')
+        return redirect(url_for('nova_reserva_hospede'))
+    
+    if checkin < datetime.now().date():
+        flash('Data de check-in não pode ser no passado!', 'error')
+        return redirect(url_for('nova_reserva_hospede'))
+    
+    if numero_hospedes <= 0:
+        flash('Número de hóspedes deve ser positivo!', 'error')
+        return redirect(url_for('nova_reserva_hospede'))
+    
+    conn = get_db_connection()
+    
+    # Verificar capacidade do quarto
+    quarto = conn.execute('SELECT * FROM quartos WHERE id = ?', (quarto_id,)).fetchone()
+    if not quarto or numero_hospedes > quarto['capacidade']:
+        flash('Número de hóspedes excede a capacidade do quarto!', 'error')
+        conn.close()
+        return redirect(url_for('nova_reserva_hospede'))
+    
+    # Verificar conflitos de reserva
+    conflitos = conn.execute('''
+        SELECT COUNT(*) FROM reservas 
+        WHERE quarto_id = ? AND status IN ('Ativa', 'Check-in')
+        AND NOT (data_checkout <= ? OR data_checkin >= ?)
+    ''', (quarto_id, data_checkin, data_checkout)).fetchone()[0]
+    
+    if conflitos > 0:
+        flash('Já existe uma reserva para este quarto no período selecionado!', 'error')
+        conn.close()
+        return redirect(url_for('nova_reserva_hospede'))
+    
+    # Calcular valor total
+    dias = (checkout - checkin).days
+    valor_total = dias * float(quarto['preco_diaria'])
+    
+    # Cadastrar reserva
+    conn.execute('''
+        INSERT INTO reservas (hospede_id, quarto_id, data_checkin, data_checkout, 
+                            numero_hospedes, valor_total, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (hospede_id, quarto_id, data_checkin, data_checkout, numero_hospedes, valor_total, 'Ativa'))
+    
+    conn.commit()
+    conn.close()
+    
+    flash('Reserva realizada com sucesso!', 'success')
+    return redirect(url_for('minhas_reservas_hospede'))
+
+@app.route('/hospede/reservas')
+def minhas_reservas_hospede():
+    """Lista reservas do hóspede"""
+    if 'hospede_id' not in session:
+        flash('Acesso negado! Faça login para ver suas reservas.', 'error')
+        return redirect(url_for('login_hospede'))
+    
+    hospede_id = session['hospede_id']
+    conn = get_db_connection()
+    
+    # Buscar todas as reservas do hóspede
+    reservas_raw = conn.execute('''
+        SELECT r.*, q.numero as quarto_numero, q.tipo as quarto_tipo
+        FROM reservas r
+        JOIN quartos q ON r.quarto_id = q.id
+        WHERE r.hospede_id = ?
+        ORDER BY r.data_checkin DESC
+    ''', (hospede_id,)).fetchall()
+    
+    conn.close()
+    
+    # Adicionar informações sobre possibilidade de edição/cancelamento
+    from datetime import datetime, timedelta
+    hoje = datetime.now().date()
+    
+    reservas = []
+    for reserva in reservas_raw:
+        reserva_dict = dict(reserva)
+        
+        # Verificar regra de 24h
+        checkin_date = datetime.strptime(reserva['data_checkin'], '%Y-%m-%d').date()
+        limite_edicao = checkin_date - timedelta(days=1)
+        
+        reserva_dict['pode_editar'] = (
+            reserva['status'] == 'Ativa' and 
+            hoje < limite_edicao
+        )
+        
+        reservas.append(reserva_dict)
+    
+    return render_template('hospede_reservas.html', reservas=reservas)
+
+@app.route('/hospede/reserva/<int:reserva_id>/editar')
+def editar_reserva_hospede(reserva_id):
+    """Formulário para hóspede editar sua reserva"""
+    if 'hospede_id' not in session:
+        flash('Acesso negado! Faça login para editar reservas.', 'error')
+        return redirect(url_for('login_hospede'))
+    
+    hospede_id = session['hospede_id']
+    conn = get_db_connection()
+    
+    # Buscar reserva do hóspede
+    reserva = conn.execute('''
+        SELECT r.*, q.numero as quarto_numero, q.tipo as quarto_tipo, q.capacidade, q.preco_diaria
+        FROM reservas r
+        JOIN quartos q ON r.quarto_id = q.id
+        WHERE r.id = ? AND r.hospede_id = ?
+    ''', (reserva_id, hospede_id)).fetchone()
+    
+    if not reserva:
+        flash('Reserva não encontrada!', 'error')
+        conn.close()
+        return redirect(url_for('minhas_reservas_hospede'))
+    
+    # Verificar regra de 24h
+    from datetime import datetime, timedelta
+    checkin_date = datetime.strptime(reserva['data_checkin'], '%Y-%m-%d').date()
+    hoje = datetime.now().date()
+    limite_edicao = checkin_date - timedelta(days=1)
+    
+    if hoje >= limite_edicao and reserva['status'] == 'Ativa':
+        flash('Não é possível editar a reserva. Faltam menos de 24 horas para o check-in!', 'error')
+        conn.close()
+        return redirect(url_for('minhas_reservas_hospede'))
+    
+    if reserva['status'] not in ['Ativa']:
+        flash('Esta reserva não pode ser editada!', 'error')
+        conn.close()
+        return redirect(url_for('minhas_reservas_hospede'))
+    
+    conn.close()
+    return render_template('hospede_reserva_editar.html', reserva=reserva)
+
+@app.route('/hospede/reserva/<int:reserva_id>/editar', methods=['POST'])
+def processar_edicao_reserva_hospede(reserva_id):
+    """Processa edição de reserva pelo hóspede"""
+    if 'hospede_id' not in session:
+        flash('Acesso negado! Faça login para editar reservas.', 'error')
+        return redirect(url_for('login_hospede'))
+    
+    hospede_id = session['hospede_id']
+    data_checkin = request.form['data_checkin']
+    data_checkout = request.form['data_checkout']
+    numero_hospedes = request.form['numero_hospedes']
+    
+    # Validações
+    if not data_checkin or not data_checkout or not numero_hospedes:
+        flash('Todos os campos são obrigatórios!', 'error')
+        return redirect(url_for('editar_reserva_hospede', reserva_id=reserva_id))
+    
+    try:
+        from datetime import datetime, timedelta
+        checkin = datetime.strptime(data_checkin, '%Y-%m-%d').date()
+        checkout = datetime.strptime(data_checkout, '%Y-%m-%d').date()
+        numero_hospedes = int(numero_hospedes)
+    except ValueError:
+        flash('Datas ou número de hóspedes inválidos!', 'error')
+        return redirect(url_for('editar_reserva_hospede', reserva_id=reserva_id))
+    
+    if checkin >= checkout:
+        flash('Data de check-out deve ser posterior ao check-in!', 'error')
+        return redirect(url_for('editar_reserva_hospede', reserva_id=reserva_id))
+    
+    # Verificar regra de 24h
+    hoje = datetime.now().date()
+    limite_edicao = checkin - timedelta(days=1)
+    
+    if hoje >= limite_edicao:
+        flash('Não é possível editar a reserva. Faltam menos de 24 horas para o check-in!', 'error')
+        return redirect(url_for('editar_reserva_hospede', reserva_id=reserva_id))
+    
+    if numero_hospedes <= 0:
+        flash('Número de hóspedes deve ser positivo!', 'error')
+        return redirect(url_for('editar_reserva_hospede', reserva_id=reserva_id))
+    
+    conn = get_db_connection()
+    
+    # Obter dados da reserva atual
+    reserva_atual = conn.execute('SELECT * FROM reservas WHERE id = ? AND hospede_id = ?', (reserva_id, hospede_id)).fetchone()
+    if not reserva_atual:
+        flash('Reserva não encontrada!', 'error')
+        conn.close()
+        return redirect(url_for('minhas_reservas_hospede'))
+    
+    # Verificar capacidade do quarto
+    quarto = conn.execute('SELECT * FROM quartos WHERE id = ?', (reserva_atual['quarto_id'],)).fetchone()
+    if numero_hospedes > quarto['capacidade']:
+        flash('Número de hóspedes excede a capacidade do quarto!', 'error')
+        conn.close()
+        return redirect(url_for('editar_reserva_hospede', reserva_id=reserva_id))
+    
+    # Verificar conflitos de reserva (excluindo a reserva atual)
+    conflitos = conn.execute('''
+        SELECT COUNT(*) FROM reservas 
+        WHERE quarto_id = ? AND status IN ('Ativa', 'Check-in') AND id != ?
+        AND NOT (data_checkout <= ? OR data_checkin >= ?)
+    ''', (reserva_atual['quarto_id'], reserva_id, data_checkin, data_checkout)).fetchone()[0]
+    
+    if conflitos > 0:
+        flash('Já existe uma reserva para este quarto no período selecionado!', 'error')
+        conn.close()
+        return redirect(url_for('editar_reserva_hospede', reserva_id=reserva_id))
+    
+    # Recalcular valor total
+    dias = (checkout - checkin).days
+    valor_total = dias * float(quarto['preco_diaria'])
+    
+    # Atualizar dados da reserva
+    conn.execute('''
+        UPDATE reservas 
+        SET data_checkin = ?, data_checkout = ?, numero_hospedes = ?, valor_total = ?
+        WHERE id = ? AND hospede_id = ?
+    ''', (data_checkin, data_checkout, numero_hospedes, valor_total, reserva_id, hospede_id))
+    
+    conn.commit()
+    conn.close()
+    
+    flash('Reserva atualizada com sucesso!', 'success')
+    return redirect(url_for('minhas_reservas_hospede'))
+
+@app.route('/hospede/reserva/<int:reserva_id>/cancelar', methods=['POST'])
+def cancelar_reserva_hospede(reserva_id):
+    """Cancela reserva do hóspede"""
+    if 'hospede_id' not in session:
+        flash('Acesso negado! Faça login para cancelar reservas.', 'error')
+        return redirect(url_for('login_hospede'))
+    
+    hospede_id = session['hospede_id']
+    conn = get_db_connection()
+    
+    # Obter dados da reserva
+    reserva = conn.execute('SELECT * FROM reservas WHERE id = ? AND hospede_id = ?', (reserva_id, hospede_id)).fetchone()
+    if not reserva:
+        flash('Reserva não encontrada!', 'error')
+        conn.close()
+        return redirect(url_for('minhas_reservas_hospede'))
+    
+    # Verificar regra de 24h
+    from datetime import datetime, timedelta
+    checkin_date = datetime.strptime(reserva['data_checkin'], '%Y-%m-%d').date()
+    hoje = datetime.now().date()
+    limite_cancelamento = checkin_date - timedelta(days=1)
+    
+    if hoje >= limite_cancelamento and reserva['status'] == 'Ativa':
+        flash('Não é possível cancelar a reserva. Faltam menos de 24 horas para o check-in!', 'error')
+        conn.close()
+        return redirect(url_for('minhas_reservas_hospede'))
+    
+    if reserva['status'] not in ['Ativa']:
+        flash('Esta reserva não pode ser cancelada!', 'error')
+        conn.close()
+        return redirect(url_for('minhas_reservas_hospede'))
+    
+    # Cancelar reserva
+    conn.execute('UPDATE reservas SET status = "Cancelada" WHERE id = ? AND hospede_id = ?', (reserva_id, hospede_id))
+    conn.commit()
+    conn.close()
+    
+    flash('Reserva cancelada com sucesso!', 'success')
+    return redirect(url_for('minhas_reservas_hospede'))
 
 # ========== ROTAS PARA ADMINISTRADORES ==========
 
@@ -495,6 +926,599 @@ def excluir_administrador(admin_id):
     
     flash('Administrador excluído com sucesso!', 'success')
     return redirect(url_for('gerenciar_administradores'))
+
+# ========== ROTAS PARA QUARTOS ==========
+
+@app.route('/admin/quartos')
+def gerenciar_quartos():
+    """Lista e gerencia quartos"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    # Parâmetros de busca
+    busca_numero = request.args.get('numero', '').strip()
+    busca_tipo = request.args.get('tipo', '').strip()
+    busca_status = request.args.get('status', '').strip()
+    busca_capacidade = request.args.get('capacidade', '').strip()
+    
+    conn = get_db_connection()
+    
+    # Query base
+    query = '''
+        SELECT * FROM quartos 
+        WHERE ativo = 1
+    '''
+    params = []
+    
+    # Adicionar filtros se informados
+    if busca_numero:
+        query += ' AND numero LIKE ?'
+        params.append(f'%{busca_numero}%')
+    
+    if busca_tipo:
+        query += ' AND tipo LIKE ?'
+        params.append(f'%{busca_tipo}%')
+    
+    if busca_status:
+        query += ' AND status = ?'
+        params.append(busca_status)
+    
+    if busca_capacidade:
+        try:
+            capacidade_num = int(busca_capacidade)
+            query += ' AND capacidade >= ?'
+            params.append(capacidade_num)
+        except ValueError:
+            pass  # Ignorar se não for um número válido
+    
+    query += ' ORDER BY numero'
+    
+    quartos = conn.execute(query, params).fetchall()
+    conn.close()
+    
+    return render_template('admin_quartos.html', 
+                         quartos=quartos,
+                         busca_numero=busca_numero,
+                         busca_tipo=busca_tipo,
+                         busca_status=busca_status,
+                         busca_capacidade=busca_capacidade)
+
+@app.route('/admin/quarto/cadastro')
+def cadastro_quarto():
+    """Formulário de cadastro de quarto"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    return render_template('admin_quarto_cadastro.html')
+
+@app.route('/admin/quarto/cadastro', methods=['POST'])
+def processar_cadastro_quarto():
+    """Processa o cadastro de novo quarto"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    numero = request.form['numero'].strip()
+    tipo = request.form['tipo'].strip()
+    capacidade = request.form['capacidade']
+    preco_diaria = request.form['preco_diaria']
+    status = request.form['status']
+    
+    # Validações
+    if not numero or not tipo or not capacidade or not preco_diaria or not status:
+        flash('Todos os campos são obrigatórios!', 'error')
+        return redirect(url_for('cadastro_quarto'))
+    
+    try:
+        capacidade = int(capacidade)
+        preco_diaria = float(preco_diaria)
+    except ValueError:
+        flash('Capacidade deve ser um número inteiro e preço deve ser um valor decimal válido!', 'error')
+        return redirect(url_for('cadastro_quarto'))
+    
+    if capacidade <= 0 or preco_diaria <= 0:
+        flash('Capacidade e preço devem ser valores positivos!', 'error')
+        return redirect(url_for('cadastro_quarto'))
+    
+    if status not in ['Disponível', 'Ocupado', 'Manutenção']:
+        flash('Status inválido!', 'error')
+        return redirect(url_for('cadastro_quarto'))
+    
+    conn = get_db_connection()
+    
+    # Verificar se número já existe
+    if conn.execute('SELECT id FROM quartos WHERE numero = ?', (numero,)).fetchone():
+        flash('Número de quarto já cadastrado!', 'error')
+        conn.close()
+        return redirect(url_for('cadastro_quarto'))
+    
+    # Cadastrar quarto
+    conn.execute('''
+        INSERT INTO quartos (numero, tipo, capacidade, preco_diaria, status)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (numero, tipo, capacidade, preco_diaria, status))
+    
+    conn.commit()
+    conn.close()
+    
+    flash('Quarto cadastrado com sucesso!', 'success')
+    return redirect(url_for('gerenciar_quartos'))
+
+@app.route('/admin/quarto/<int:quarto_id>/editar')
+def editar_quarto(quarto_id):
+    """Formulário para editar quarto"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    conn = get_db_connection()
+    quarto = conn.execute('SELECT * FROM quartos WHERE id = ? AND ativo = 1', (quarto_id,)).fetchone()
+    conn.close()
+    
+    if not quarto:
+        flash('Quarto não encontrado!', 'error')
+        return redirect(url_for('gerenciar_quartos'))
+    
+    return render_template('admin_quarto_editar.html', quarto=quarto)
+
+@app.route('/admin/quarto/<int:quarto_id>/editar', methods=['POST'])
+def processar_edicao_quarto(quarto_id):
+    """Processa a edição dos dados do quarto"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    tipo = request.form['tipo'].strip()
+    capacidade = request.form['capacidade']
+    preco_diaria = request.form['preco_diaria']
+    status = request.form['status']
+    
+    # Validações
+    if not tipo or not capacidade or not preco_diaria or not status:
+        flash('Todos os campos são obrigatórios!', 'error')
+        return redirect(url_for('editar_quarto', quarto_id=quarto_id))
+    
+    try:
+        capacidade = int(capacidade)
+        preco_diaria = float(preco_diaria)
+    except ValueError:
+        flash('Capacidade deve ser um número inteiro e preço deve ser um valor decimal válido!', 'error')
+        return redirect(url_for('editar_quarto', quarto_id=quarto_id))
+    
+    if capacidade <= 0 or preco_diaria <= 0:
+        flash('Capacidade e preço devem ser valores positivos!', 'error')
+        return redirect(url_for('editar_quarto', quarto_id=quarto_id))
+    
+    if status not in ['Disponível', 'Ocupado', 'Manutenção']:
+        flash('Status inválido!', 'error')
+        return redirect(url_for('editar_quarto', quarto_id=quarto_id))
+    
+    conn = get_db_connection()
+    
+    # Verificar se quarto tem reservas futuras antes de desativar
+    if status == 'Manutenção':
+        reservas_futuras = conn.execute('''
+            SELECT COUNT(*) FROM reservas 
+            WHERE quarto_id = ? AND status IN ('Ativa', 'Check-in') 
+            AND data_checkout > date('now')
+        ''', (quarto_id,)).fetchone()[0]
+        
+        if reservas_futuras > 0:
+            flash('Não é possível colocar o quarto em manutenção. Existem reservas futuras!', 'error')
+            conn.close()
+            return redirect(url_for('editar_quarto', quarto_id=quarto_id))
+    
+    # Atualizar dados
+    conn.execute('''
+        UPDATE quartos 
+        SET tipo = ?, capacidade = ?, preco_diaria = ?, status = ?
+        WHERE id = ?
+    ''', (tipo, capacidade, preco_diaria, status, quarto_id))
+    
+    conn.commit()
+    conn.close()
+    
+    flash('Dados do quarto atualizados com sucesso!', 'success')
+    return redirect(url_for('gerenciar_quartos'))
+
+@app.route('/admin/quarto/<int:quarto_id>/excluir', methods=['POST'])
+def excluir_quarto(quarto_id):
+    """Exclui (inativa) um quarto"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    conn = get_db_connection()
+    
+    # Verificar se quarto tem reservas futuras
+    reservas_futuras = conn.execute('''
+        SELECT COUNT(*) FROM reservas 
+        WHERE quarto_id = ? AND status IN ('Ativa', 'Check-in') 
+        AND data_checkout > date('now')
+    ''', (quarto_id,)).fetchone()[0]
+    
+    if reservas_futuras > 0:
+        flash('Não é possível excluir o quarto. Existem reservas futuras!', 'error')
+        conn.close()
+        return redirect(url_for('gerenciar_quartos'))
+    
+    # Exclusão lógica - marca como inativo
+    conn.execute('UPDATE quartos SET ativo = 0 WHERE id = ?', (quarto_id,))
+    conn.commit()
+    conn.close()
+    
+    flash('Quarto excluído com sucesso!', 'success')
+    return redirect(url_for('gerenciar_quartos'))
+
+# ========== ROTAS PARA RESERVAS ==========
+
+@app.route('/admin/reservas')
+def gerenciar_reservas():
+    """Lista e gerencia reservas"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    # Parâmetros de busca
+    busca_hospede = request.args.get('hospede', '').strip()
+    busca_quarto = request.args.get('quarto', '').strip()
+    busca_status = request.args.get('status', '').strip()
+    busca_data = request.args.get('data', '').strip()
+    
+    conn = get_db_connection()
+    
+    # Query base com JOIN para pegar dados do hóspede e quarto
+    query = '''
+        SELECT r.*, h.nome_completo as hospede_nome, h.email as hospede_email,
+               q.numero as quarto_numero, q.tipo as quarto_tipo
+        FROM reservas r
+        JOIN hospedes h ON r.hospede_id = h.id
+        JOIN quartos q ON r.quarto_id = q.id
+        WHERE 1=1
+    '''
+    params = []
+    
+    # Adicionar filtros se informados
+    if busca_hospede:
+        query += ' AND h.nome_completo LIKE ?'
+        params.append(f'%{busca_hospede}%')
+    
+    if busca_quarto:
+        query += ' AND q.numero LIKE ?'
+        params.append(f'%{busca_quarto}%')
+    
+    if busca_status:
+        query += ' AND r.status = ?'
+        params.append(busca_status)
+    
+    if busca_data:
+        query += ' AND (r.data_checkin <= ? AND r.data_checkout >= ?)'
+        params.extend([busca_data, busca_data])
+    
+    query += ' ORDER BY r.data_checkin DESC'
+    
+    reservas = conn.execute(query, params).fetchall()
+    conn.close()
+    
+    return render_template('admin_reservas.html', 
+                         reservas=reservas,
+                         busca_hospede=busca_hospede,
+                         busca_quarto=busca_quarto,
+                         busca_status=busca_status,
+                         busca_data=busca_data)
+
+@app.route('/admin/reserva/cadastro')
+def cadastro_reserva():
+    """Formulário de cadastro de reserva"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    conn = get_db_connection()
+    hospedes = conn.execute('SELECT * FROM hospedes WHERE ativo = 1 ORDER BY nome_completo').fetchall()
+    quartos = conn.execute('SELECT * FROM quartos WHERE ativo = 1 AND status = "Disponível" ORDER BY numero').fetchall()
+    conn.close()
+    
+    return render_template('admin_reserva_cadastro.html', hospedes=hospedes, quartos=quartos)
+
+@app.route('/admin/reserva/cadastro', methods=['POST'])
+def processar_cadastro_reserva():
+    """Processa o cadastro de nova reserva"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    hospede_id = request.form['hospede_id']
+    quarto_id = request.form['quarto_id']
+    data_checkin = request.form['data_checkin']
+    data_checkout = request.form['data_checkout']
+    numero_hospedes = request.form['numero_hospedes']
+    
+    # Validações
+    if not hospede_id or not quarto_id or not data_checkin or not data_checkout or not numero_hospedes:
+        flash('Todos os campos são obrigatórios!', 'error')
+        return redirect(url_for('cadastro_reserva'))
+    
+    try:
+        from datetime import datetime
+        checkin = datetime.strptime(data_checkin, '%Y-%m-%d').date()
+        checkout = datetime.strptime(data_checkout, '%Y-%m-%d').date()
+        numero_hospedes = int(numero_hospedes)
+    except ValueError:
+        flash('Datas ou número de hóspedes inválidos!', 'error')
+        return redirect(url_for('cadastro_reserva'))
+    
+    if checkin >= checkout:
+        flash('Data de check-out deve ser posterior ao check-in!', 'error')
+        return redirect(url_for('cadastro_reserva'))
+    
+    if checkin < datetime.now().date():
+        flash('Data de check-in não pode ser no passado!', 'error')
+        return redirect(url_for('cadastro_reserva'))
+    
+    if numero_hospedes <= 0:
+        flash('Número de hóspedes deve ser positivo!', 'error')
+        return redirect(url_for('cadastro_reserva'))
+    
+    conn = get_db_connection()
+    
+    # Verificar capacidade do quarto
+    quarto = conn.execute('SELECT * FROM quartos WHERE id = ?', (quarto_id,)).fetchone()
+    if not quarto or numero_hospedes > quarto['capacidade']:
+        flash('Número de hóspedes excede a capacidade do quarto!', 'error')
+        conn.close()
+        return redirect(url_for('cadastro_reserva'))
+    
+    # Verificar conflitos de reserva
+    conflitos = conn.execute('''
+        SELECT COUNT(*) FROM reservas 
+        WHERE quarto_id = ? AND status IN ('Ativa', 'Check-in')
+        AND NOT (data_checkout <= ? OR data_checkin >= ?)
+    ''', (quarto_id, data_checkin, data_checkout)).fetchone()[0]
+    
+    if conflitos > 0:
+        flash('Já existe uma reserva para este quarto no período selecionado!', 'error')
+        conn.close()
+        return redirect(url_for('cadastro_reserva'))
+    
+    # Calcular valor total
+    dias = (checkout - checkin).days
+    valor_total = dias * float(quarto['preco_diaria'])
+    
+    # Cadastrar reserva
+    conn.execute('''
+        INSERT INTO reservas (hospede_id, quarto_id, data_checkin, data_checkout, 
+                            numero_hospedes, valor_total, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (hospede_id, quarto_id, data_checkin, data_checkout, numero_hospedes, valor_total, 'Ativa'))
+    
+    conn.commit()
+    conn.close()
+    
+    flash('Reserva cadastrada com sucesso!', 'success')
+    return redirect(url_for('gerenciar_reservas'))
+
+@app.route('/admin/reserva/<int:reserva_id>/editar')
+def editar_reserva(reserva_id):
+    """Formulário para editar reserva"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    conn = get_db_connection()
+    reserva = conn.execute('''
+        SELECT r.*, h.nome_completo as hospede_nome, q.numero as quarto_numero
+        FROM reservas r
+        JOIN hospedes h ON r.hospede_id = h.id
+        JOIN quartos q ON r.quarto_id = q.id
+        WHERE r.id = ?
+    ''', (reserva_id,)).fetchone()
+    
+    if not reserva:
+        flash('Reserva não encontrada!', 'error')
+        conn.close()
+        return redirect(url_for('gerenciar_reservas'))
+    
+    hospedes = conn.execute('SELECT * FROM hospedes WHERE ativo = 1 ORDER BY nome_completo').fetchall()
+    quartos = conn.execute('SELECT * FROM quartos WHERE ativo = 1 ORDER BY numero').fetchall()
+    conn.close()
+    
+    return render_template('admin_reserva_editar.html', reserva=reserva, hospedes=hospedes, quartos=quartos)
+
+@app.route('/admin/reserva/<int:reserva_id>/editar', methods=['POST'])
+def processar_edicao_reserva(reserva_id):
+    """Processa a edição dos dados da reserva"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    data_checkin = request.form['data_checkin']
+    data_checkout = request.form['data_checkout']
+    numero_hospedes = request.form['numero_hospedes']
+    status = request.form['status']
+    
+    # Validações
+    if not data_checkin or not data_checkout or not numero_hospedes or not status:
+        flash('Todos os campos são obrigatórios!', 'error')
+        return redirect(url_for('editar_reserva', reserva_id=reserva_id))
+    
+    try:
+        from datetime import datetime
+        checkin = datetime.strptime(data_checkin, '%Y-%m-%d').date()
+        checkout = datetime.strptime(data_checkout, '%Y-%m-%d').date()
+        numero_hospedes = int(numero_hospedes)
+    except ValueError:
+        flash('Datas ou número de hóspedes inválidos!', 'error')
+        return redirect(url_for('editar_reserva', reserva_id=reserva_id))
+    
+    if checkin >= checkout:
+        flash('Data de check-out deve ser posterior ao check-in!', 'error')
+        return redirect(url_for('editar_reserva', reserva_id=reserva_id))
+    
+    if numero_hospedes <= 0:
+        flash('Número de hóspedes deve ser positivo!', 'error')
+        return redirect(url_for('editar_reserva', reserva_id=reserva_id))
+    
+    if status not in ['Ativa', 'Cancelada', 'Check-in', 'Check-out']:
+        flash('Status inválido!', 'error')
+        return redirect(url_for('editar_reserva', reserva_id=reserva_id))
+    
+    conn = get_db_connection()
+    
+    # Obter dados da reserva atual
+    reserva_atual = conn.execute('SELECT * FROM reservas WHERE id = ?', (reserva_id,)).fetchone()
+    if not reserva_atual:
+        flash('Reserva não encontrada!', 'error')
+        conn.close()
+        return redirect(url_for('gerenciar_reservas'))
+    
+    # Verificar capacidade do quarto
+    quarto = conn.execute('SELECT * FROM quartos WHERE id = ?', (reserva_atual['quarto_id'],)).fetchone()
+    if numero_hospedes > quarto['capacidade']:
+        flash('Número de hóspedes excede a capacidade do quarto!', 'error')
+        conn.close()
+        return redirect(url_for('editar_reserva', reserva_id=reserva_id))
+    
+    # Verificar conflitos de reserva (excluindo a reserva atual)
+    conflitos = conn.execute('''
+        SELECT COUNT(*) FROM reservas 
+        WHERE quarto_id = ? AND status IN ('Ativa', 'Check-in') AND id != ?
+        AND NOT (data_checkout <= ? OR data_checkin >= ?)
+    ''', (reserva_atual['quarto_id'], reserva_id, data_checkin, data_checkout)).fetchone()[0]
+    
+    if conflitos > 0:
+        flash('Já existe uma reserva para este quarto no período selecionado!', 'error')
+        conn.close()
+        return redirect(url_for('editar_reserva', reserva_id=reserva_id))
+    
+    # Recalcular valor total
+    dias = (checkout - checkin).days
+    valor_total = dias * float(quarto['preco_diaria'])
+    
+    # Atualizar status do quarto se necessário
+    if status == 'Check-in' and reserva_atual['status'] != 'Check-in':
+        conn.execute('UPDATE quartos SET status = "Ocupado" WHERE id = ?', (reserva_atual['quarto_id'],))
+    elif status == 'Check-out' and reserva_atual['status'] != 'Check-out':
+        conn.execute('UPDATE quartos SET status = "Disponível" WHERE id = ?', (reserva_atual['quarto_id'],))
+    elif status in ['Ativa', 'Cancelada'] and reserva_atual['status'] == 'Check-in':
+        conn.execute('UPDATE quartos SET status = "Disponível" WHERE id = ?', (reserva_atual['quarto_id'],))
+    
+    # Atualizar dados da reserva
+    conn.execute('''
+        UPDATE reservas 
+        SET data_checkin = ?, data_checkout = ?, numero_hospedes = ?, 
+            valor_total = ?, status = ?
+        WHERE id = ?
+    ''', (data_checkin, data_checkout, numero_hospedes, valor_total, status, reserva_id))
+    
+    conn.commit()
+    conn.close()
+    
+    flash('Dados da reserva atualizados com sucesso!', 'success')
+    return redirect(url_for('gerenciar_reservas'))
+
+@app.route('/admin/reserva/<int:reserva_id>/cancelar', methods=['POST'])
+def cancelar_reserva(reserva_id):
+    """Cancela uma reserva"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    conn = get_db_connection()
+    
+    # Obter dados da reserva
+    reserva = conn.execute('SELECT * FROM reservas WHERE id = ?', (reserva_id,)).fetchone()
+    if not reserva:
+        flash('Reserva não encontrada!', 'error')
+        conn.close()
+        return redirect(url_for('gerenciar_reservas'))
+    
+    # Liberar quarto se estiver ocupado
+    if reserva['status'] == 'Check-in':
+        conn.execute('UPDATE quartos SET status = "Disponível" WHERE id = ?', (reserva['quarto_id'],))
+    
+    # Cancelar reserva
+    conn.execute('UPDATE reservas SET status = "Cancelada" WHERE id = ?', (reserva_id,))
+    conn.commit()
+    conn.close()
+    
+    flash('Reserva cancelada com sucesso!', 'success')
+    return redirect(url_for('gerenciar_reservas'))
+
+@app.route('/admin/reserva/<int:reserva_id>/checkin', methods=['POST'])
+def processar_checkin(reserva_id):
+    """Processa check-in de uma reserva"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    conn = get_db_connection()
+    
+    # Obter dados da reserva
+    reserva = conn.execute('SELECT * FROM reservas WHERE id = ?', (reserva_id,)).fetchone()
+    if not reserva:
+        flash('Reserva não encontrada!', 'error')
+        conn.close()
+        return redirect(url_for('gerenciar_reservas'))
+    
+    # Verificar se é possível fazer check-in
+    from datetime import datetime
+    hoje = datetime.now().date()
+    checkin_date = datetime.strptime(reserva['data_checkin'], '%Y-%m-%d').date()
+    
+    if hoje < checkin_date:
+        flash('Check-in só pode ser realizado a partir da data agendada!', 'error')
+        conn.close()
+        return redirect(url_for('gerenciar_reservas'))
+    
+    if reserva['status'] != 'Ativa':
+        flash('Check-in só pode ser realizado em reservas ativas!', 'error')
+        conn.close()
+        return redirect(url_for('gerenciar_reservas'))
+    
+    # Processar check-in
+    conn.execute('UPDATE reservas SET status = "Check-in" WHERE id = ?', (reserva_id,))
+    conn.execute('UPDATE quartos SET status = "Ocupado" WHERE id = ?', (reserva['quarto_id'],))
+    
+    conn.commit()
+    conn.close()
+    
+    flash('Check-in realizado com sucesso!', 'success')
+    return redirect(url_for('gerenciar_reservas'))
+
+@app.route('/admin/reserva/<int:reserva_id>/checkout', methods=['POST'])
+def processar_checkout(reserva_id):
+    """Processa check-out de uma reserva"""
+    if 'admin_id' not in session:
+        flash('Acesso negado! Faça login como administrador.', 'error')
+        return redirect(url_for('login_admin'))
+    
+    conn = get_db_connection()
+    
+    # Obter dados da reserva
+    reserva = conn.execute('SELECT * FROM reservas WHERE id = ?', (reserva_id,)).fetchone()
+    if not reserva:
+        flash('Reserva não encontrada!', 'error')
+        conn.close()
+        return redirect(url_for('gerenciar_reservas'))
+    
+    # Verificar se é possível fazer check-out
+    if reserva['status'] != 'Check-in':
+        flash('Check-out só pode ser realizado após check-in!', 'error')
+        conn.close()
+        return redirect(url_for('gerenciar_reservas'))
+    
+    # Processar check-out
+    conn.execute('UPDATE reservas SET status = "Check-out" WHERE id = ?', (reserva_id,))
+    conn.execute('UPDATE quartos SET status = "Disponível" WHERE id = ?', (reserva['quarto_id'],))
+    
+    conn.commit()
+    conn.close()
+    
+    flash('Check-out realizado com sucesso!', 'success')
+    return redirect(url_for('gerenciar_reservas'))
 
 if __name__ == '__main__':
     init_db()

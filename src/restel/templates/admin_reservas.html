@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Reservas - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-1">
+                                <i class="fas fa-calendar-check me-2"></i>Gerenciar Reservas
+                            </h1>
+                            <p class="mb-0">
+                                Controle completo de reservas do hotel
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ url_for('painel_admin') }}" class="btn btn-light">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar ao Painel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações e Resultados -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Lista de Reservas ({{ reservas|length }} encontradas)
+                    </h5>
+                    <a href="{{ url_for('cadastro_reserva') }}" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>Nova Reserva
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if reservas %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Hóspede</th>
+                                        <th>Quarto</th>
+                                        <th>Check-in</th>
+                                        <th>Check-out</th>
+                                        <th>Valor Total</th>
+                                        <th>Status</th>
+                                        <th class="text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reserva in reservas %}
+                                    <tr>
+                                        <td><strong>#{{ reserva.id }}</strong></td>
+                                        <td>{{ reserva.hospede_nome }}</td>
+                                        <td>{{ reserva.quarto_numero }}</td>
+                                        <td>{{ reserva.data_checkin }}</td>
+                                        <td>{{ reserva.data_checkout }}</td>
+                                        <td><strong>R$ {{ reserva.valor_total }}</strong></td>
+                                        <td>
+                                            {% if reserva.status == 'Ativa' %}
+                                                <span class="badge bg-primary">{{ reserva.status }}</span>
+                                            {% elif reserva.status == 'Check-in' %}
+                                                <span class="badge bg-success">{{ reserva.status }}</span>
+                                            {% elif reserva.status == 'Check-out' %}
+                                                <span class="badge bg-info">{{ reserva.status }}</span>
+                                            {% elif reserva.status == 'Cancelada' %}
+                                                <span class="badge bg-danger">{{ reserva.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <!-- Botão Editar -->
+                                                {% if reserva.status in ['Ativa', 'Check-in'] %}
+                                                <a href="{{ url_for('editar_reserva', reserva_id=reserva.id) }}" 
+                                                   class="btn btn-outline-primary btn-sm" 
+                                                   title="Editar reserva">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% endif %}
+                                                
+                                                <!-- Botão Check-in -->
+                                                {% if reserva.status == 'Ativa' %}
+                                                <form method="POST" action="{{ url_for('processar_checkin', reserva_id=reserva.id) }}" style="display: inline;">
+                                                    <button type="submit" class="btn btn-outline-success btn-sm" 
+                                                            title="Fazer check-in" 
+                                                            onclick="return confirm('Confirma o check-in desta reserva?')">
+                                                        <i class="fas fa-sign-in-alt"></i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                                
+                                                <!-- Botão Check-out -->
+                                                {% if reserva.status == 'Check-in' %}
+                                                <form method="POST" action="{{ url_for('processar_checkout', reserva_id=reserva.id) }}" style="display: inline;">
+                                                    <button type="submit" class="btn btn-outline-info btn-sm" 
+                                                            title="Fazer check-out" 
+                                                            onclick="return confirm('Confirma o check-out desta reserva?')">
+                                                        <i class="fas fa-sign-out-alt"></i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                                
+                                                <!-- Botão Cancelar -->
+                                                {% if reserva.status == 'Ativa' %}
+                                                <form method="POST" action="{{ url_for('cancelar_reserva', reserva_id=reserva.id) }}" style="display: inline;">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                            title="Cancelar reserva" 
+                                                            onclick="return confirm('Tem certeza que deseja cancelar esta reserva?')">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                                
+                                                <!-- Indicador de status para reservas finalizadas -->
+                                                {% if reserva.status in ['Check-out', 'Cancelada'] %}
+                                                <span class="text-muted small">Finalizada</span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhuma reserva encontrada</h5>
+                            <p class="text-muted">Comece cadastrando a primeira reserva do hotel.</p>
+                            <a href="{{ url_for('cadastro_reserva') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Cadastrar Primeira Reserva
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

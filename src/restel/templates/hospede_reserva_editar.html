@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Reserva - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-1">
+                                <i class="fas fa-edit me-2"></i>Editar Reserva #{{ reserva.id }}
+                            </h1>
+                            <p class="mb-0">
+                                Modifique os dados da sua reserva
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ url_for('minhas_reservas_hospede') }}" class="btn btn-light">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar às Reservas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário de Edição -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Dados da Reserva
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('processar_edicao_reserva_hospede', reserva_id=reserva.id) }}">
+                        <div class="row g-3">
+                            <!-- Quarto (Somente Leitura) -->
+                            <div class="col-md-6">
+                                <label for="quarto_info" class="form-label">
+                                    <i class="fas fa-bed me-1"></i>Quarto
+                                </label>
+                                <input type="text" class="form-control" id="quarto_info" 
+                                       value="{{ reserva.quarto_numero }} - {{ reserva.quarto_tipo }}" readonly>
+                                <div class="form-text text-muted">
+                                    <i class="fas fa-lock me-1"></i>O quarto não pode ser alterado
+                                </div>
+                            </div>
+
+                            <!-- Capacidade do Quarto (Info) -->
+                            <div class="col-md-6">
+                                <label for="capacidade_info" class="form-label">
+                                    <i class="fas fa-users me-1"></i>Capacidade do Quarto
+                                </label>
+                                <input type="text" class="form-control" id="capacidade_info" 
+                                       value="{{ reserva.capacidade }} pessoas" readonly>
+                                <div class="form-text text-muted">
+                                    Limite máximo de hóspedes
+                                </div>
+                            </div>
+
+                            <!-- Data Check-in -->
+                            <div class="col-md-6">
+                                <label for="data_checkin" class="form-label">
+                                    <i class="fas fa-calendar-plus me-1"></i>Data de Check-in <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="data_checkin" name="data_checkin" 
+                                       value="{{ reserva.data_checkin }}" required>
+                                <div class="form-text">
+                                    Data de entrada
+                                </div>
+                            </div>
+
+                            <!-- Data Check-out -->
+                            <div class="col-md-6">
+                                <label for="data_checkout" class="form-label">
+                                    <i class="fas fa-calendar-minus me-1"></i>Data de Check-out <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="data_checkout" name="data_checkout" 
+                                       value="{{ reserva.data_checkout }}" required>
+                                <div class="form-text">
+                                    Data de saída
+                                </div>
+                            </div>
+
+                            <!-- Número de Hóspedes -->
+                            <div class="col-md-6">
+                                <label for="numero_hospedes" class="form-label">
+                                    <i class="fas fa-users me-1"></i>Número de Hóspedes <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="numero_hospedes" name="numero_hospedes" required>
+                                    <option value="">Selecione</option>
+                                    <option value="1" {% if reserva.numero_hospedes == 1 %}selected{% endif %}>1 pessoa</option>
+                                    <option value="2" {% if reserva.numero_hospedes == 2 %}selected{% endif %}>2 pessoas</option>
+                                    <option value="3" {% if reserva.numero_hospedes == 3 %}selected{% endif %}>3 pessoas</option>
+                                    <option value="4" {% if reserva.numero_hospedes == 4 %}selected{% endif %}>4 pessoas</option>
+                                    <option value="5" {% if reserva.numero_hospedes == 5 %}selected{% endif %}>5 pessoas</option>
+                                    <option value="6" {% if reserva.numero_hospedes == 6 %}selected{% endif %}>6 pessoas</option>
+                                </select>
+                                <div class="form-text">
+                                    Deve respeitar a capacidade do quarto
+                                </div>
+                            </div>
+
+                            <!-- Valor Total (Calculado automaticamente) -->
+                            <div class="col-md-6">
+                                <label for="valor_total_display" class="form-label">
+                                    <i class="fas fa-calculator me-1"></i>Valor Total
+                                </label>
+                                <input type="text" class="form-control" id="valor_total_display" 
+                                       value="R$ {{ reserva.valor_total|round(2) }}" readonly>
+                                <div class="form-text">
+                                    Calculado automaticamente
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{{ url_for('minhas_reservas_hospede') }}" class="btn btn-secondary me-md-2">
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Salvar Alterações
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações Importantes -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Atenção
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Prazo limite:</strong> Alterações só podem ser feitas até 24 horas antes do check-in.</li>
+                        <li><strong>Quarto:</strong> O quarto não pode ser alterado após a criação da reserva.</li>
+                        <li><strong>Capacidade:</strong> O número de hóspedes não pode exceder a capacidade do quarto.</li>
+                        <li><strong>Conflitos:</strong> As novas datas não podem conflitar com outras reservas do mesmo quarto.</li>
+                        <li><strong>Valor:</strong> O valor total será recalculado automaticamente com base nas novas datas.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Dados do servidor
+    var precoDiaria = parseFloat('{{ reserva.preco_diaria }}');
+    var capacidadeQuarto = parseInt('{{ reserva.capacidade }}');
+    
+    // Função para calcular valor total
+    function calcularValorTotal() {
+        var checkin = document.getElementById('data_checkin').value;
+        var checkout = document.getElementById('data_checkout').value;
+        var valorTotalInput = document.getElementById('valor_total_display');
+        
+        if (checkin && checkout) {
+            var checkinDate = new Date(checkin);
+            var checkoutDate = new Date(checkout);
+            
+            if (checkoutDate > checkinDate) {
+                var dias = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+                var total = dias * precoDiaria;
+                valorTotalInput.value = 'R$ ' + total.toFixed(2).replace('.', ',');
+            } else {
+                valorTotalInput.value = 'R$ 0,00';
+            }
+        } else {
+            valorTotalInput.value = 'R$ 0,00';
+        }
+    }
+    
+    // Validação de datas - Check-in
+    document.getElementById('data_checkin').addEventListener('change', function() {
+        var checkinDate = this.value;
+        var checkoutInput = document.getElementById('data_checkout');
+        
+        if (checkinDate) {
+            // Definir data mínima do checkout como dia seguinte ao checkin
+            var nextDay = new Date(checkinDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            checkoutInput.min = nextDay.toISOString().split('T')[0];
+            
+            // Limpar checkout se for anterior ao novo checkin
+            if (checkoutInput.value && checkoutInput.value <= checkinDate) {
+                checkoutInput.value = '';
+            }
+        }
+        
+        calcularValorTotal();
+    });
+    
+    // Calcular valor quando checkout mudar
+    document.getElementById('data_checkout').addEventListener('change', calcularValorTotal);
+    
+    // Verificar capacidade quando número de hóspedes mudar
+    document.getElementById('numero_hospedes').addEventListener('change', function() {
+        var numeroHospedes = parseInt(this.value);
+        
+        if (numeroHospedes && numeroHospedes > capacidadeQuarto) {
+            alert('O número de hóspedes (' + numeroHospedes + ') excede a capacidade do quarto (' + capacidadeQuarto + '). Por favor, selecione um número menor.');
+            this.value = '';
+        }
+    });
+});
+</script>
+{% endblock %} 

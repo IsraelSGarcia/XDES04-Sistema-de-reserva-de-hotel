@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Login Hóspede - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Login Hóspede
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('processar_login_hospede') }}">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Email
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="seu@email.com" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="senha" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Senha
+                            </label>
+                            <input type="password" class="form-control" id="senha" name="senha" 
+                                   placeholder="Sua senha" required>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-2"></i>Entrar
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-2">Ainda não tem conta?</p>
+                        <a href="{{ url_for('cadastro_hospede') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-user-plus me-2"></i>Criar Conta
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <a href="{{ url_for('index') }}" class="btn btn-link">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar ao Início
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -16,17 +16,131 @@
                     Bem-vindo ao sistema de gerenciamento do Hotel Boa Estadia.
                     Plataforma moderna e intuitiva para gerenciar hóspedes e administradores.
                 </p>
-                <div class="d-flex gap-3">
-                    <a href="{{ url_for('cadastro_hospede') }}" class="btn btn-light btn-lg">
-                        <i class="fas fa-user-plus me-2"></i>Cadastrar-se como Hóspede
-                    </a>
-                    <a href="{{ url_for('login_admin') }}" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-sign-in-alt me-2"></i>Acesso Administrativo
-                    </a>
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if session.hospede_id %}
+                        <a href="{{ url_for('painel_hospede') }}" class="btn btn-light btn-lg">
+                            <i class="fas fa-tachometer-alt me-2"></i>Meu Painel
+                        </a>
+                        <a href="{{ url_for('nova_reserva_hospede') }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-plus me-2"></i>Nova Reserva
+                        </a>
+                    {% elif session.admin_id %}
+                        <a href="{{ url_for('painel_admin') }}" class="btn btn-light btn-lg">
+                            <i class="fas fa-tachometer-alt me-2"></i>Painel Administrativo
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login_hospede') }}" class="btn btn-light btn-lg">
+                            <i class="fas fa-user me-2"></i>Login Hóspede
+                        </a>
+                        <a href="{{ url_for('cadastro_hospede') }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Cadastrar-se
+                        </a>
+                        <a href="{{ url_for('login_admin') }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Acesso Admin
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             <div class="col-lg-6 text-center">
                 <i class="fas fa-building display-1 opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="h1 mb-3">Funcionalidades do Sistema</h2>
+                <p class="lead text-muted">Gerencie reservas, quartos e hóspedes de forma simples e eficiente</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i class="fas fa-calendar-plus fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Reservas Online</h5>
+                        <p class="card-text">
+                            Hóspedes podem fazer, editar e cancelar reservas facilmente através da plataforma online.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i class="fas fa-bed fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Gestão de Quartos</h5>
+                        <p class="card-text">
+                            Controle completo de quartos, tipos, capacidades, preços e status de disponibilidade.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Gestão de Hóspedes</h5>
+                        <p class="card-text">
+                            Cadastro e gerenciamento completo de hóspedes com histórico de reservas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Check-in/Check-out</h5>
+                        <p class="card-text">
+                            Processamento rápido de check-in e check-out com atualizações automáticas de status.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Controle de Acesso</h5>
+                        <p class="card-text">
+                            Sistema seguro com diferentes níveis de acesso para hóspedes e administradores.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Relatórios</h5>
+                        <p class="card-text">
+                            Relatórios detalhados de reservas, ocupação e estatísticas do hotel.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

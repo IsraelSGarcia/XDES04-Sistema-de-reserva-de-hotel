@@ -1,0 +1,504 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastrar Reserva - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-1">
+                                <i class="fas fa-calendar-plus me-2"></i>Cadastrar Nova Reserva
+                            </h1>
+                            <p class="mb-0">
+                                Adicione uma nova reserva ao sistema
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ url_for('gerenciar_reservas') }}" class="btn btn-light">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar à Lista
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário de Cadastro -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus me-2"></i>Dados da Reserva
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('processar_cadastro_reserva') }}">
+                        <div class="row g-3">
+                            <!-- Hóspede -->
+                            <div class="col-md-6">
+                                <label for="hospede_id" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Hóspede <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="hospede_id" name="hospede_id" required>
+                                    <option value="">Selecione o hóspede</option>
+                                    {% for hospede in hospedes %}
+                                        <option value="{{ hospede.id }}">{{ hospede.nome_completo }} ({{ hospede.email }})</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">
+                                    Selecione o hóspede responsável pela reserva
+                                </div>
+                            </div>
+
+                            <!-- Quarto -->
+                            <div class="col-md-6">
+                                <label for="quarto_id" class="form-label">
+                                    <i class="fas fa-bed me-1"></i>Quarto <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="quarto_id" name="quarto_id" required>
+                                    <option value="">Selecione o quarto</option>
+                                    {% for quarto in quartos %}
+                                        <option value="{{ quarto.id }}" data-capacidade="{{ quarto.capacidade }}" data-preco="{{ quarto.preco_diaria }}">
+                                            {{ quarto.numero }} - {{ quarto.tipo }} ({{ quarto.capacidade }} pessoas) - R$ {{ quarto.preco_diaria }}/dia
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">
+                                    Apenas quartos disponíveis são listados
+                                </div>
+                            </div>
+
+                            <!-- Data Check-in -->
+                            <div class="col-md-6">
+                                <label for="data_checkin" class="form-label">
+                                    <i class="fas fa-calendar-plus me-1"></i>Data de Check-in <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="data_checkin" name="data_checkin" 
+                                       required min="{{ today }}">
+                                <div class="form-text">
+                                    Data de entrada do hóspede
+                                </div>
+                            </div>
+
+                            <!-- Data Check-out -->
+                            <div class="col-md-6">
+                                <label for="data_checkout" class="form-label">
+                                    <i class="fas fa-calendar-minus me-1"></i>Data de Check-out <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="data_checkout" name="data_checkout" 
+                                       required>
+                                <div class="form-text">
+                                    Data de saída do hóspede
+                                </div>
+                            </div>
+
+                            <!-- Calendário de Disponibilidade -->
+                            <div class="col-12" id="calendario-container" style="display: none;">
+                                <div class="card border-warning">
+                                    <div class="card-header bg-warning text-dark">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-calendar-alt me-2"></i>Disponibilidade do Quarto Selecionado
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <div id="calendario-disponibilidade" class="mb-3"></div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <h6>Legenda:</h6>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="me-2" style="width: 20px; height: 20px; background-color: #28a745; border-radius: 3px;"></div>
+                                                    <small>Disponível</small>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="me-2" style="width: 20px; height: 20px; background-color: #dc3545; border-radius: 3px;"></div>
+                                                    <small>Ocupado</small>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="me-2" style="width: 20px; height: 20px; background-color: #007bff; border-radius: 3px;"></div>
+                                                    <small>Período Selecionado</small>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="me-2" style="width: 20px; height: 20px; background-color: #6c757d; border-radius: 3px;"></div>
+                                                    <small>Datas Passadas</small>
+                                                </div>
+                                                <hr>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Use o calendário para visualizar a disponibilidade e selecionar datas válidas.
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Número de Hóspedes -->
+                            <div class="col-md-6">
+                                <label for="numero_hospedes" class="form-label">
+                                    <i class="fas fa-users me-1"></i>Número de Hóspedes <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="numero_hospedes" name="numero_hospedes" required>
+                                    <option value="">Selecione o número de hóspedes</option>
+                                    <option value="1">1 pessoa</option>
+                                    <option value="2">2 pessoas</option>
+                                    <option value="3">3 pessoas</option>
+                                    <option value="4">4 pessoas</option>
+                                    <option value="5">5 pessoas</option>
+                                    <option value="6">6 pessoas</option>
+                                </select>
+                                <div class="form-text">
+                                    Deve respeitar a capacidade do quarto
+                                </div>
+                            </div>
+
+                            <!-- Valor Total (Calculado) -->
+                            <div class="col-md-6">
+                                <label for="valor_total" class="form-label">
+                                    <i class="fas fa-dollar-sign me-1"></i>Valor Total Estimado
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="text" class="form-control" id="valor_total" readonly placeholder="0,00">
+                                </div>
+                                <div class="form-text">
+                                    Calculado automaticamente com base nas datas e quarto
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{{ url_for('gerenciar_reservas') }}" class="btn btn-secondary me-md-2">
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-2"></i>Cadastrar Reserva
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dicas -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Dicas Importantes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Hóspede:</strong> Deve estar previamente cadastrado no sistema.</li>
+                        <li><strong>Quarto:</strong> Apenas quartos disponíveis são exibidos na lista.</li>
+                        <li><strong>Datas:</strong> Check-out deve ser posterior ao check-in.</li>
+                        <li><strong>Capacidade:</strong> Número de hóspedes não pode exceder a capacidade do quarto.</li>
+                        <li><strong>Conflitos:</strong> O sistema verifica automaticamente conflitos de datas.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let periodosOcupados = [];
+let dataCheckinSelecionada = null;
+let dataCheckoutSelecionada = null;
+
+// Definir data mínima como hoje
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('data_checkin').min = today;
+    
+    // Atualizar data mínima do checkout quando checkin mudah
+    document.getElementById('data_checkin').addEventListener('change', function() {
+        const checkinDate = this.value;
+        const checkoutInput = document.getElementById('data_checkout');
+        
+        if (checkinDate) {
+            // Definir data mínima do checkout como dia seguinte ao checkin
+            const nextDay = new Date(checkinDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            checkoutInput.min = nextDay.toISOString().split('T')[0];
+            
+            // Limpar checkout se for anterior ao novo checkin
+            if (checkoutInput.value && checkoutInput.value <= checkinDate) {
+                checkoutInput.value = '';
+            }
+        }
+        
+        atualizarCalendario();
+        calcularValorTotal();
+    });
+    
+    // Calcular valor quando checkout mudar
+    document.getElementById('data_checkout').addEventListener('change', function() {
+        atualizarCalendario();
+        calcularValorTotal();
+    });
+    
+    // Carregar disponibilidade quando quarto mudar
+    document.getElementById('quarto_id').addEventListener('change', function() {
+        if (this.value) {
+            carregarDisponibilidade(this.value);
+            document.getElementById('calendario-container').style.display = 'block';
+        } else {
+            document.getElementById('calendario-container').style.display = 'none';
+        }
+        calcularValorTotal();
+        verificarCapacidade();
+    });
+    
+    // Verificar capacidade quando número de hóspedes mudar
+    document.getElementById('numero_hospedes').addEventListener('change', verificarCapacidade);
+});
+
+function carregarDisponibilidade(quartoId) {
+    fetch(`/api/disponibilidade/${quartoId}`)
+        .then(response => response.json())
+        .then(data => {
+            periodosOcupados = data.periodos_ocupados;
+            gerarCalendario();
+        })
+        .catch(error => {
+            console.error('Erro ao carregar disponibilidade:', error);
+            periodosOcupados = [];
+            gerarCalendario();
+        });
+}
+
+function gerarCalendario() {
+    const calendarioDiv = document.getElementById('calendario-disponibilidade');
+    calendarioDiv.innerHTML = '';
+    
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
+    
+    // Gerar calendário para os próximos 3 meses
+    for (let i = 0; i < 3; i++) {
+        const mes = (mesAtual + i) % 12;
+        const ano = mesAtual + i >= 12 ? anoAtual + 1 : anoAtual;
+        
+        const mesDiv = document.createElement('div');
+        mesDiv.className = 'mb-4';
+        mesDiv.innerHTML = gerarMes(ano, mes);
+        calendarioDiv.appendChild(mesDiv);
+    }
+    
+    atualizarCalendario();
+}
+
+function gerarMes(ano, mes) {
+    const nomesMeses = [
+        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    
+    const primeiroDia = new Date(ano, mes, 1);
+    const ultimoDia = new Date(ano, mes + 1, 0);
+    const diasNoMes = ultimoDia.getDate();
+    const diaSemanaInicio = primeiroDia.getDay();
+    
+    let html = `
+        <h6 class="text-center mb-3">${nomesMeses[mes]} ${ano}</h6>
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr class="table-light">
+                    <th class="text-center py-1">Dom</th>
+                    <th class="text-center py-1">Seg</th>
+                    <th class="text-center py-1">Ter</th>
+                    <th class="text-center py-1">Qua</th>
+                    <th class="text-center py-1">Qui</th>
+                    <th class="text-center py-1">Sex</th>
+                    <th class="text-center py-1">Sáb</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    let dia = 1;
+    for (let semana = 0; semana < 6; semana++) {
+        html += '<tr>';
+        for (let diaSemana = 0; diaSemana < 7; diaSemana++) {
+            if (semana === 0 && diaSemana < diaSemanaInicio) {
+                html += '<td class="text-center py-1"></td>';
+            } else if (dia > diasNoMes) {
+                html += '<td class="text-center py-1"></td>';
+            } else {
+                const dataAtual = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                const isPassado = new Date(dataAtual) < new Date().setHours(0, 0, 0, 0);
+                const isOcupado = verificarSeOcupado(dataAtual);
+                
+                let classe = 'calendario-dia text-center py-1';
+                let estilo = 'cursor: pointer; user-select: none;';
+                
+                if (isPassado) {
+                    classe += ' table-secondary';
+                    estilo += ' cursor: not-allowed; opacity: 0.5;';
+                } else if (isOcupado) {
+                    classe += ' table-danger';
+                    estilo += ' cursor: not-allowed;';
+                } else {
+                    classe += ' table-success';
+                }
+                
+                html += `<td class="${classe}" style="${estilo}" data-date="${dataAtual}" onclick="selecionarData('${dataAtual}')">${dia}</td>`;
+                dia++;
+            }
+        }
+        html += '</tr>';
+        if (dia > diasNoMes) break;
+    }
+    
+    html += '</tbody></table>';
+    return html;
+}
+
+function verificarSeOcupado(data) {
+    return periodosOcupados.some(periodo => {
+        return data >= periodo.start && data < periodo.end;
+    });
+}
+
+function selecionarData(data) {
+    const hoje = new Date().toISOString().split('T')[0];
+    if (data < hoje || verificarSeOcupado(data)) {
+        return;
+    }
+    
+    const checkinInput = document.getElementById('data_checkin');
+    const checkoutInput = document.getElementById('data_checkout');
+    
+    if (!dataCheckinSelecionada || (dataCheckinSelecionada && dataCheckoutSelecionada)) {
+        // Selecionar check-in
+        dataCheckinSelecionada = data;
+        dataCheckoutSelecionada = null;
+        checkinInput.value = data;
+        checkoutInput.value = '';
+        
+        // Definir data mínima do checkout
+        const nextDay = new Date(data);
+        nextDay.setDate(nextDay.getDate() + 1);
+        checkoutInput.min = nextDay.toISOString().split('T')[0];
+    } else {
+        // Selecionar check-out
+        if (data > dataCheckinSelecionada && !verificarConflito(dataCheckinSelecionada, data)) {
+            dataCheckoutSelecionada = data;
+            checkoutInput.value = data;
+        } else {
+            alert('Data inválida! Selecione uma data posterior ao check-in e que não conflite com reservas existentes.');
+            return;
+        }
+    }
+    
+    atualizarCalendario();
+    calcularValorTotal();
+}
+
+function verificarConflito(inicio, fim) {
+    return periodosOcupados.some(periodo => {
+        return !(fim <= periodo.start || inicio >= periodo.end);
+    });
+}
+
+function atualizarCalendario() {
+    const checkin = document.getElementById('data_checkin').value;
+    const checkout = document.getElementById('data_checkout').value;
+    
+    // Remover seleções anteriores
+    document.querySelectorAll('.calendario-dia').forEach(td => {
+        td.classList.remove('table-primary');
+        if (!td.classList.contains('table-secondary') && !td.classList.contains('table-danger')) {
+            td.classList.add('table-success');
+        }
+    });
+    
+    // Destacar período selecionado
+    if (checkin) {
+        const tdCheckin = document.querySelector(`[data-date="${checkin}"]`);
+        if (tdCheckin) {
+            tdCheckin.classList.remove('table-success');
+            tdCheckin.classList.add('table-primary');
+        }
+    }
+    
+    if (checkout) {
+        const tdCheckout = document.querySelector(`[data-date="${checkout}"]`);
+        if (tdCheckout) {
+            tdCheckout.classList.remove('table-success');
+            tdCheckout.classList.add('table-primary');
+        }
+        
+        // Destacar dias entre check-in e check-out
+        if (checkin) {
+            const dataInicio = new Date(checkin);
+            const dataFim = new Date(checkout);
+            
+            for (let d = new Date(dataInicio); d < dataFim; d.setDate(d.getDate() + 1)) {
+                const dataStr = d.toISOString().split('T')[0];
+                const td = document.querySelector(`[data-date="${dataStr}"]`);
+                if (td) {
+                    td.classList.remove('table-success');
+                    td.classList.add('table-primary');
+                }
+            }
+        }
+    }
+}
+
+function calcularValorTotal() {
+    const checkin = document.getElementById('data_checkin').value;
+    const checkout = document.getElementById('data_checkout').value;
+    const quartoSelect = document.getElementById('quarto_id');
+    const valorTotalInput = document.getElementById('valor_total');
+    
+    if (checkin && checkout && quartoSelect.value) {
+        const checkinDate = new Date(checkin);
+        const checkoutDate = new Date(checkout);
+        const preco = parseFloat(quartoSelect.options[quartoSelect.selectedIndex].dataset.preco);
+        
+        if (checkoutDate > checkinDate) {
+            const dias = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+            const total = dias * preco;
+            valorTotalInput.value = total.toFixed(2).replace('.', ',');
+        } else {
+            valorTotalInput.value = '0,00';
+        }
+    } else {
+        valorTotalInput.value = '0,00';
+    }
+}
+
+function verificarCapacidade() {
+    const quartoSelect = document.getElementById('quarto_id');
+    const numeroHospedes = parseInt(document.getElementById('numero_hospedes').value);
+    
+    if (quartoSelect.value && numeroHospedes) {
+        const capacidade = parseInt(quartoSelect.options[quartoSelect.selectedIndex].dataset.capacidade);
+        
+        if (numeroHospedes > capacidade) {
+            alert(`O número de hóspedes (${numeroHospedes}) excede a capacidade do quarto (${capacidade}). Por favor, selecione outro quarto ou reduza o número de hóspedes.`);
+            document.getElementById('numero_hospedes').value = '';
+        }
+    }
+}
+</script>
+{% endblock %} 

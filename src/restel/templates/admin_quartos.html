@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Quartos - RESTEL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-1">
+                                <i class="fas fa-bed me-2"></i>Gerenciar Quartos
+                            </h1>
+                            <p class="mb-0">
+                                Controle de quartos e disponibilidade
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ url_for('painel_admin') }}" class="btn btn-light">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar ao Painel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros de Busca -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-search me-2"></i>Filtros de Busca
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('gerenciar_quartos') }}">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="numero" class="form-label">Número do Quarto</label>
+                                <input type="text" class="form-control" id="numero" name="numero" 
+                                       value="{{ busca_numero }}" placeholder="Ex: 101">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="tipo" class="form-label">Tipo</label>
+                                <input type="text" class="form-control" id="tipo" name="tipo" 
+                                       value="{{ busca_tipo }}" placeholder="Ex: Suíte">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="">Todos</option>
+                                    <option value="Disponível" {% if busca_status == 'Disponível' %}selected{% endif %}>Disponível</option>
+                                    <option value="Ocupado" {% if busca_status == 'Ocupado' %}selected{% endif %}>Ocupado</option>
+                                    <option value="Manutenção" {% if busca_status == 'Manutenção' %}selected{% endif %}>Manutenção</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="capacidade" class="form-label">Capacidade Mín.</label>
+                                <input type="number" class="form-control" id="capacidade" name="capacidade" 
+                                       value="{{ busca_capacidade }}" placeholder="Ex: 2" min="1">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-search me-1"></i>Buscar
+                                </button>
+                                <a href="{{ url_for('gerenciar_quartos') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>Limpar
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações e Resultados -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Lista de Quartos ({{ quartos|length }} encontrados)
+                    </h5>
+                    <a href="{{ url_for('cadastro_quarto') }}" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>Novo Quarto
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if quartos %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Número</th>
+                                        <th>Tipo</th>
+                                        <th>Capacidade</th>
+                                        <th>Preço/Diária</th>
+                                        <th>Status</th>
+                                        <th>Data Cadastro</th>
+                                        <th class="text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for quarto in quartos %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ quarto.numero }}</strong>
+                                        </td>
+                                        <td>{{ quarto.tipo }}</td>
+                                        <td>
+                                            <i class="fas fa-users me-1"></i>{{ quarto.capacidade }}
+                                        </td>
+                                                                                 <td>
+                                             <strong>R$ {{ quarto.preco_diaria|round(2) }}</strong>
+                                         </td>
+                                        <td>
+                                            {% if quarto.status == 'Disponível' %}
+                                                <span class="badge bg-success">{{ quarto.status }}</span>
+                                            {% elif quarto.status == 'Ocupado' %}
+                                                <span class="badge bg-warning">{{ quarto.status }}</span>
+                                            {% elif quarto.status == 'Manutenção' %}
+                                                <span class="badge bg-danger">{{ quarto.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ quarto.data_cadastro.split(' ')[0] if quarto.data_cadastro else 'N/A' }}
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('editar_quarto', quarto_id=quarto.id) }}" 
+                                                   class="btn btn-outline-primary btn-sm" 
+                                                   title="Editar quarto">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-outline-danger btn-sm" 
+                                                        title="Excluir quarto"
+                                                        onclick="confirmarExclusao({{ quarto.id }}, '{{ quarto.numero }}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bed fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhum quarto encontrado</h5>
+                            <p class="text-muted">
+                                {% if busca_numero or busca_tipo or busca_status %}
+                                    Tente ajustar os filtros de busca ou 
+                                    <a href="{{ url_for('gerenciar_quartos') }}">limpe os filtros</a>.
+                                {% else %}
+                                    Comece cadastrando o primeiro quarto do hotel.
+                                {% endif %}
+                            </p>
+                            <a href="{{ url_for('cadastro_quarto') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Cadastrar Primeiro Quarto
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="modalExclusao" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Exclusão
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o quarto <strong id="modalQuartoNumero"></strong>?</p>
+                <p class="text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Esta ação não pode ser desfeita. O quarto será marcado como inativo.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <form id="formExclusao" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Excluir
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmarExclusao(quartoId, quartoNumero) {
+    document.getElementById('modalQuartoNumero').textContent = quartoNumero;
+    document.getElementById('formExclusao').action = `/admin/quarto/${quartoId}/excluir`;
+    
+    const modal = new bootstrap.Modal(document.getElementById('modalExclusao'));
+    modal.show();
+}
+</script>
+{% endblock %} 
