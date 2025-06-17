@@ -57,7 +57,10 @@ def init_db():
 
 def get_db_connection():
     """Retorna uma conexão com o banco de dados"""
-    conn = sqlite3.connect(DATABASE)
+    from flask import current_app
+    # Use a database path from app config if available (for testing), else global
+    db_path = current_app.config.get('DATABASE', DATABASE)
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -86,9 +89,25 @@ def cadastro_hospede():
 @app.route('/hospede/cadastro', methods=['POST'])
 def processar_cadastro_hospede():
     """Processa o cadastro de novo hóspede"""
+    # --- BEGIN TEMP DEBUG ---
+    try:
+        # Ensure the debug file is written to a known, accessible location,
+        # e.g., the project root or a dedicated 'logs' folder.
+        # For simplicity, writing to the same directory as app.py for now.
+        debug_file_path = os.path.join(os.path.dirname(__file__), "processar_cadastro_hospede_debug.txt")
+        with open(debug_file_path, "a") as f:
+            f.write(f"--- HIT at {datetime.now()} ---\n")
+            f.write(f"DATABASE path: {DATABASE}\n")
+            f.write(f"Request form: {dict(request.form)}\n")
+            f.write(f"Request Content-Type: {request.content_type}\n")
+    except Exception as e_debug_file:
+        # This print should definitely appear if file writing fails
+        print(f"CRITICAL DEBUG: Error writing debug file: {e_debug_file}", flush=True)
+    # --- END TEMP DEBUG ---
+
     # Debug: print form data
-    print("Form data received:", dict(request.form))
-    print("Content-Type:", request.content_type)
+    print("Form data received:", dict(request.form), flush=True)
+    print("Content-Type:", request.content_type, flush=True)
     
     # Safely get form data with error handling
     nome_completo = request.form.get('nome_completo', '').strip()
@@ -99,18 +118,22 @@ def processar_cadastro_hospede():
     
     # Validações
     if not nome_completo or not email or not cpf or not telefone or not senha:
+        print("VALIDATION FAIL: Campos obrigatórios em branco.", flush=True)
         flash('Todos os campos são obrigatórios!', 'error')
         return redirect(url_for('cadastro_hospede'))
     
     if not validar_email(email):
+        print(f"VALIDATION FAIL: Email inválido - '{email}'", flush=True)
         flash('Email inválido!', 'error')
         return redirect(url_for('cadastro_hospede'))
     
     if not validar_cpf(cpf):
+        print(f"VALIDATION FAIL: CPF inválido - '{cpf}'", flush=True)
         flash('CPF inválido!', 'error')
         return redirect(url_for('cadastro_hospede'))
     
     if len(senha) < 6:
+        print(f"VALIDATION FAIL: Senha curta - '{senha}'", flush=True)
         flash('Senha deve ter pelo menos 6 caracteres!', 'error')
         return redirect(url_for('cadastro_hospede'))
     
@@ -118,12 +141,14 @@ def processar_cadastro_hospede():
     
     # Verificar se email já existe
     if conn.execute('SELECT id FROM hospedes WHERE email = ?', (email,)).fetchone():
+        print(f"VALIDATION FAIL: Email já cadastrado - '{email}'", flush=True)
         flash('Email já cadastrado!', 'error')
         conn.close()
         return redirect(url_for('cadastro_hospede'))
     
     # Verificar se CPF já existe
     if conn.execute('SELECT id FROM hospedes WHERE cpf = ?', (cpf,)).fetchone():
+        print(f"VALIDATION FAIL: CPF já cadastrado - '{cpf}'", flush=True)
         flash('CPF já cadastrado!', 'error')
         conn.close()
         return redirect(url_for('cadastro_hospede'))

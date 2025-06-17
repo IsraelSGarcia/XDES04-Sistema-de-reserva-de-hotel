@@ -1,0 +1,20 @@
+--- HIT at 2025-06-17 01:17:32.259516 ---
+DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
+Request form: {'nome_completo': 'João Silva Teste', 'email': 'guest.list.test.1750133849.4107096@example.com', 'cpf': '501.338.494-10', 'telefone': '(11) 99999-8888', 'senha': 'senha123'}
+Request Content-Type: application/x-www-form-urlencoded
+--- HIT at 2025-06-17 01:18:27.642708 ---
+DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
+Request form: {'nome_completo': 'João Silva Teste', 'email': 'guest.list.test.1750133905.0135505@example.com', 'cpf': '501.339.050-13', 'telefone': '(11) 99999-8888', 'senha': 'senha123'}
+Request Content-Type: application/x-www-form-urlencoded
+--- HIT at 2025-06-17 01:23:20.661848 ---
+DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
+Request form: {'nome_completo': 'jfhjksdhfjkdhs', 'email': 'dfjksdhfkjs@gmaosf.cop', 'cpf': '342.343.434-24', 'telefone': '(42) 3432-4324', 'senha': 'dsjfhdjksfhkjshfjksd'}
+Request Content-Type: application/x-www-form-urlencoded
+--- HIT at 2025-06-17 01:28:35.432762 ---
+DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
+Request form: {'nome_completo': 'fcgvhbjk', 'email': 'yguhijok@vghbj.com', 'cpf': '345.323.452-44', 'telefone': '(34) 56789-098767', 'senha': 'asfdfdf'}
+Request Content-Type: application/x-www-form-urlencoded
+--- HIT at 2025-06-17 01:29:07.282593 ---
+DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
+Request form: {'nome_completo': 'fcgvhbjk', 'email': 'yguhijok@vghbj.com', 'cpf': '345.323.452-44', 'telefone': '(34) 56789-098767', 'senha': 'asfdfdf'}
+Request Content-Type: application/x-www-form-urlencoded

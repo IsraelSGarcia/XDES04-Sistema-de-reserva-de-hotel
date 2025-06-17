@@ -61,9 +61,12 @@ class BasePage:
         select = Select(element)
         select.select_by_value(value)
     
-    def wait_for_url_contains(self, url_part):
-        """Aguarda URL conter determinado texto"""
-        return self.wait.until(EC.url_contains(url_part))
+    def wait_for_url_contains(self, url_part, timeout=None):
+        """Aguarda URL conter determinado texto, com timeout customizável."""
+        wait_instance = self.wait
+        if timeout is not None:
+            wait_instance = WebDriverWait(self.driver, timeout)
+        return wait_instance.until(EC.url_contains(url_part))
     
     def wait_for_element_visible(self, locator, timeout=None):
         """Aguarda elemento ficar visível"""

@@ -27,15 +27,59 @@ app_path = project_root / "src" / "restel"
 sys.path.insert(0, str(app_path))
 sys.path.insert(0, str(project_root))
 
-# Configurações globais
+# Função para perguntar sobre modo de exibição do browser
+def ask_browser_mode():
+    """Pergunta ao usuário se quer ver o browser ou rodar em modo transparente"""
+    print("\n" + "="*60)
+    print("🌐 CONFIGURAÇÃO DO BROWSER PARA TESTES E2E")
+    print("="*60)
+    print("1. 👁️  Modo Visível - Ver o browser executando os testes")
+    print("2. 🥷 Modo Transparente - Browser invisível (headless)")
+    print("="*60)
+    print("💡 Dica: Use --headless ou --visible para pular esta pergunta")
+    print("="*60)
+    
+    while True:
+        try:
+            choice = input("Escolha uma opção (1 ou 2): ").strip()
+            if choice == '1':
+                print("✅ Modo selecionado: Browser VISÍVEL")
+                return False  # Não headless
+            elif choice == '2':
+                print("✅ Modo selecionado: Browser TRANSPARENTE")
+                return True   # Headless
+            else:
+                print("❌ Opção inválida! Digite 1 ou 2.")
+        except (KeyboardInterrupt, EOFError):
+            print("\n⏹️  Cancelado pelo usuário. Usando modo transparente por padrão.")
+            return True
+
+# Configurações globais otimizadas para performance
 TEST_CONFIG = {
     'BASE_URL': 'http://localhost:5000',
     'ADMIN_EMAIL': 'admin@restel.com',
     'ADMIN_PASSWORD': 'admin123',
-    'HEADLESS': True,  # Mude para False para ver o browser
-    'WAIT_TIMEOUT': 10,
+    'HEADLESS': True,  # Valor padrão, será atualizado dinamicamente
+    'WAIT_TIMEOUT': 3,  # Reduzido de 10 para 3 segundos
+    'PAGE_LOAD_TIMEOUT': 10,  # Reduzido de 30 para 10 segundos
+    'SCRIPT_TIMEOUT': 5,  # Reduzido de 30 para 5 segundos
     'DB_TIMEOUT': 30
 }
+
+def pytest_addoption(parser):
+    """Adiciona opções de linha de comando para pytest"""
+    parser.addoption(
+        "--headless",
+        action="store_true",
+        default=False,
+        help="Executar browser em modo headless (transparente)"
+    )
+    parser.addoption(
+        "--visible",
+        action="store_true", 
+        default=False,
+        help="Executar browser em modo visível"
+    )
 
 def pytest_configure(config):
     """Configuração inicial do pytest"""
@@ -65,9 +109,15 @@ def test_database():
     os.environ['FLASK_TESTING'] = 'True'
     os.environ['TEST_DATABASE'] = temp_db.name
     
-    # Importar e configurar app  
+    # Importar e configurar app
+    print(f"[conftest.py test_database] Current sys.path[0]: {sys.path[0]}", flush=True)
+    print(f"[conftest.py test_database] Current sys.path[1]: {sys.path[1]}", flush=True)
+    print(f"[conftest.py test_database] project_root: {project_root}", flush=True)
+    print(f"[conftest.py test_database] app_path: {app_path}", flush=True)
     import app as app_module
+    print(f"[conftest.py test_database] Imported app_module from: {app_module.__file__}", flush=True)
     from app import app, init_db
+    print(f"[conftest.py test_database] Imported app object: {app}", flush=True)
     
     # Override global DATABASE variable for tests
     app_module.DATABASE = temp_db.name
@@ -78,9 +128,16 @@ def test_database():
     with app.app_context():
         init_db()
     
-    yield temp_db.name
-    
-    # Cleanup - ensure all connections are closed
+    # Conectar ao banco de dados temporário
+    conn = None
+    try:
+        conn = sqlite3.connect(temp_db.name, timeout=TEST_CONFIG.get('DB_TIMEOUT', 30))
+        conn.row_factory = sqlite3.Row # Para acesso por nome de coluna
+        yield conn # Fornece a conexão para os testes
+    finally:
+        if conn:
+            conn.close()
+        # Cleanup - ensure all connections are closed (original cleanup for file deletion)
     try:
         os.unlink(temp_db.name)
     except PermissionError:
@@ -123,30 +180,108 @@ def app_client(test_database):
 # ============================================================================
 
 @pytest.fixture(scope="session")
-def selenium_driver():
+def selenium_driver(request):
     """Driver Selenium configurado"""
+    # Determinar modo do browser
+    headless_mode = True  # Padrão
+    
+    # Verificar argumentos de linha de comando
+    if hasattr(request.config.option, 'visible') and request.config.option.visible:
+        headless_mode = False
+        print("🖥️  Modo VISÍVEL ativado via --visible")
+    elif hasattr(request.config.option, 'headless') and request.config.option.headless:
+        headless_mode = True
+        print("🥷 Modo TRANSPARENTE ativado via --headless")
+    else:
+        # Se não há argumentos específicos, perguntar ao usuário
+        headless_mode = ask_browser_mode()
+    
+    # Atualizar configuração global
+    TEST_CONFIG['HEADLESS'] = headless_mode
+    
     chrome_options = Options()
     
-    if TEST_CONFIG['HEADLESS']:
-        chrome_options.add_argument("--headless")
+    # Configurações básicas otimizadas para velocidade
+    if headless_mode:
+        chrome_options.add_argument("--headless=new")
+        print("🚀 Modo TURBO TRANSPARENTE ativado")
+    else:
+        print("🖥️  Modo VISÍVEL ativado")
     
-    # Opções para estabilidade
+    # Configurações essenciais e rápidas
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1920,1080")
-    chrome_options.add_argument("--disable-web-security")
-    chrome_options.add_argument("--allow-running-insecure-content")
+    chrome_options.add_argument("--window-size=1366,768")  # Tamanho menor = mais rápido
     
-    # Configurar service
-    service = Service(ChromeDriverManager().install())
+    # Otimizações agressivas para velocidade
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-plugins")
+    chrome_options.add_argument("--disable-images")  # Sempre desabilitar imagens
+    chrome_options.add_argument("--disable-background-timer-throttling")
+    chrome_options.add_argument("--disable-backgrounding-occluded-windows") 
+    chrome_options.add_argument("--disable-renderer-backgrounding")
+    chrome_options.add_argument("--disable-features=TranslateUI,BlinkGenPropertyTrees")
+    chrome_options.add_argument("--aggressive-cache-discard")
+    chrome_options.add_argument("--memory-pressure-off")
+    chrome_options.add_argument("--max_old_space_size=4096")
     
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-    driver.implicitly_wait(TEST_CONFIG['WAIT_TIMEOUT'])
+    # Suprimir logs para velocidade
+    chrome_options.add_argument("--log-level=3")
+    chrome_options.add_argument("--silent")
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    chrome_options.add_experimental_option('useAutomationExtension', False)
     
-    yield driver
+    # Prefs para velocidade máxima
+    prefs = {
+        "profile.default_content_setting_values": {
+            "images": 2,  # Bloquear imagens
+            "plugins": 2,  # Bloquear plugins
+            "popups": 2,   # Bloquear popups
+            "geolocation": 2,  # Bloquear localização
+            "notifications": 2,  # Bloquear notificações
+            "media_stream": 2  # Bloquear media
+        },
+        "profile.managed_default_content_settings": {
+            "images": 2
+        }
+    }
+    chrome_options.add_experimental_option("prefs", prefs)
     
-    driver.quit()
+    # ChromeDriver otimizado para velocidade
+    try:
+        # Cache do driver para evitar downloads repetidos  
+        service = Service(
+            ChromeDriverManager().install(),
+            log_path=os.devnull
+        )
+    except Exception:
+        service = Service(log_path=os.devnull)
+    
+    driver = None
+    try:
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+        
+        # Timeouts otimizados para velocidade
+        driver.implicitly_wait(TEST_CONFIG['WAIT_TIMEOUT'])  # 3 segundos
+        driver.set_page_load_timeout(TEST_CONFIG['PAGE_LOAD_TIMEOUT'])  # 10 segundos
+        driver.set_script_timeout(TEST_CONFIG['SCRIPT_TIMEOUT'])  # 5 segundos
+        
+        print(f"⚡ Browser iniciado em modo TURBO (timeouts: {TEST_CONFIG['WAIT_TIMEOUT']}s)")
+        
+        yield driver
+        
+    except Exception as e:
+        print(f"Erro ao inicializar driver: {e}")
+        if driver:
+            driver.quit()
+        raise
+    finally:
+        if driver:
+            try:
+                driver.quit()
+            except Exception:
+                pass  # Ignorar erros ao fechar
 
 @pytest.fixture(scope="function")
 def driver(selenium_driver):
@@ -168,23 +303,36 @@ def flask_server(test_database):
     # Configurar app para testes
     app.config['TESTING'] = True
     app.config['DATABASE'] = test_database
+    app.config['WTF_CSRF_ENABLED'] = False  # Desabilitar CSRF nos testes
+    
+    # Suprimir logs do Flask
+    import logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
     
     # Iniciar servidor em thread separada
     server_thread = threading.Thread(
-        target=lambda: app.run(port=5000, debug=False, use_reloader=False)
+        target=lambda: app.run(
+            port=5000, 
+            debug=False, 
+            use_reloader=False,
+            threaded=True
+        )
     )
     server_thread.daemon = True
     server_thread.start()
     
-    # Aguardar servidor iniciar
-    max_attempts = 30
-    for _ in range(max_attempts):
+    # Aguardar servidor iniciar - otimizado para velocidade
+    max_attempts = 10  # Reduzido de 30 para 10
+    for attempt in range(max_attempts):
         try:
-            response = requests.get(TEST_CONFIG['BASE_URL'])
+            response = requests.get(TEST_CONFIG['BASE_URL'], timeout=2)  # Timeout reduzido
             if response.status_code == 200:
+                print(f"⚡ Servidor Flask iniciado em {attempt + 1} tentativas")
                 break
-        except requests.exceptions.ConnectionError:
-            time.sleep(1)
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            if attempt < max_attempts - 1:
+                time.sleep(0.5)  # Reduzido de 1s para 0.5s
     else:
         pytest.fail("Servidor Flask não iniciou a tempo")
     

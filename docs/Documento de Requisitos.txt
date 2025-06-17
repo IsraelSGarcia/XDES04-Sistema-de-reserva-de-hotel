@@ -1,0 +1,386 @@
+
+
+
+
+
+
+
+
+<Sistema de Reserva de Hotéis RESTEL> 
+Cliente: <Nome do Cliente>
+
+
+<Código do Projeto - Nome do Projeto> 
+DOCUMENTO DE REQUISITOS
+
+Versão <1.1>
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+SWFactory Consultoria e Sistemas Ltda
+Rua Santana, 179, sala 306/308
+CEP: 37200-000 Lavras – MG
+(35) 3822-8148
+http://www.swfactory.com.br 
+
+Revisões do Documento
+Revisões são melhoramentos na estrutura do documento e também no seu conteúdo. O objetivo primário desta tabela é a fácil identificação da versão do documento. Toda modificação no documento deve constar nesta tabela.
+Data	Versão	Descrição	Autor
+30/05/2025	1.0	Versão Inicial	Lucas
+06/06/2025	1.1	Versão Inicial Revisada	Lucas, Israel
+
+
+Auditorias do Documento
+Auditorias são inspeções conduzidas o SEPG – Software Engineer Process Group (Grupo de Engenharia de Processo de Software), e tem por objetivo garantir uma qualidade mínima dos artefatos gerados durante o processo de desenvolvimento. Essa tabela pode ser utilizada também pelo GN – Gerente da Área de Negócio com o objetivo de documentar a viabilidade do mesmo.
+Data	Versão	Descrição	Autor
+			
+ÍNDICE
+1.	INTRODUÇÃO	4
+1.1	CONVENÇÕES, TERMOS E ABREVIAÇÕES	4
+1.1.1	Identificação dos Requisitos	4
+1.1.2	Prioridades dos Requisitos	5
+2.	VISÃO GERAL DO PRODUTO/SERVIÇO	5
+2.1	ABRANGÊNCIA E SISTEMAS RELACIONADOS	5
+2.2	DESCRIÇÃO DO CLIENTE	5
+2.3	DESCRIÇÃO DOS USUÁRIOS	5
+2.3.1	 Hóspede	6
+2.3.2	 Administrador	6
+3.	REQUISITOS FUNCIONAIS	6
+3.1	GERENCIAMENTO DE HÓSPEDES	6
+[RF01] Cadastro de Hóspedes.........................................................................................................................
+[RF02] Consulta de Hóspedes.........................................................................................................................
+[RF03] Atualização de dados do hóspede.......................................................................................................
+[RF04] Exclusão de hóspedes	6
+3.2	GERENCIAMENTO DE ADMINISTRADORES	6
+4.	REQUISITOS NÃO FUNCIONAIS	6
+4.1	USABILIDADE	7
+5.	RASTREABILIDADE	8
+6.	MUDANÇAS NOS REQUISITOS	8
+7.	REFERÊNCIAS	9
+ 
+1.	Introdução
+Este documento especifica os requisitos do RESTEL (Sistema de Reserva de Hotéis), fornecendo aos desenvolvedores as informações necessárias para a execução de seu projeto e implementação, assim como para a realização dos testes e homologação.
+Esta introdução fornece as informações necessárias para fazer um bom uso deste documento, explicitando seus objetivos e as convenções que foram adotadas no texto. As demais seções apresentam a especificação do RESTEL (Sistema de Reserva de Hotéis)e estão organizadas como descrito abaixo:
+•	Seção 2 - Descrição geral do produto/serviço: apresenta uma visão geral do produto/serviço, caracterizando qual é o seu escopo e descrevendo seus usuários.
+•	Seção 3 - Requisitos funcionais: lista e descreve os requisitos funcionais do produto/serviço, especificando seus objetivos, funcionalidades, atores e prioridades.
+•	Seção 4 - Requisitos não funcionais: especifica todos os requisitos não funcionais do produto/serviço, divididos em requisitos de usabilidade, confiabilidade, desempenho, segurança, distribuição, adequação a padrões e requisitos de hardware e software.
+•	Seção 5 - Rastreabilidade: apresenta os relacionamentos entre os requisitos do produto/serviço.
+•	Seção 6 - Referências: contém uma lista de referências para outros documentos relacionados
+1.1	Convenções, termos e abreviações
+A correta interpretação deste documento exige o conhecimento de algumas convenções e termos específicos, que são descritos a seguir.
+1.1.1	Identificação dos Requisitos
+Por convenção, a referência a requisitos é feita através do identificador do requisito, de acordo com o esquema abaixo:
+[identificador de tipo de requisito.identificador do requisito]
+O identificador de tipo de requisito pode ser:
+•	RF – requisito funcional
+•	RNF – requisito não-funcional
+Identificador do requisito é um número, criado seqüencialmente, que determina que aquele requisito é único para um determinado tipo de requisito.
+Ex: RF001, RF002, RNF001, RNF002.
+1.1.2	Prioridades dos Requisitos
+Para estabelecer a prioridade dos requisitos foram adotadas as denominações “essencial”, “importante” e “desejável”.
+•	Essencial é o requisito sem o qual o sistema não entra em funcionamento. Requisitos essenciais são requisitos imprescindíveis, que têm que ser implementados impreterivelmente.
+•	Importante é o requisito sem o qual o sistema entra em funcionamento, mas de forma não satisfatória. Requisitos importantes devem ser implementados, mas, se não forem, o sistema poderá ser implantado e usado mesmo assim.
+•	Desejável é o requisito que não compromete as funcionalidades básicas do sistema, isto é, o sistema pode funcionar de forma satisfatória sem ele. Requisitos desejáveis são requisitos que podem ser deixados para versões posteriores do sistema, caso não haja tempo hábil para implementá-los na versão que está sendo especificada.
+2.	Visão geral do Produto/serviço
+O sistema RESTEL é uma plataforma web projetada para gerenciar o processo de reservas de quartos da Rede de Hotéis Boa Estadia. O sistema permitirá que hóspedes realizem, consultem e gerenciem suas próprias reservas online, enquanto a equipe administrativa terá ferramentas para gerenciar quartos, hóspedes, administradores do sistema e o fluxo de hospedagem (check-in/check-out).
+2.1	Abrangência e sistemas relacionados
+O sistema RESTEL será uma plataforma autocontida e independente. Suas principais funcio-nalidades incluem o gerenciamento de hóspedes, quartos, administradores e o ciclo completo de reservas.
+Não fazem parte do escopo deste projeto:
+•	Módulo financeiro (processamento de pagamentos, faturamento, etc.).
+•	Integração com sistemas de governança ou limpeza.
+•	Programa de fidelidade de hóspedes.
+2.2	Descrição do cliente
+O cliente é a Rede de Hotéis Boa Estadia, uma empresa que busca modernizar e automatizar seus processos de reserva para oferecer maior conveniência aos seus hóspedes e otimizar a gestão interna.
+2.3	Descrição dos usuários
+O sistema terá dois perfis principais:
+2.3.1	Hóspede
+Qualquer pessoa que acesse a área pública do site para realizar, consultar ou cancelar uma reserva. Este perfil não precisa de login para a maioria das ações, mas seu cadastro é necessário para efetuar uma reserva.
+2.3.2	Administrador
+Funcionário do hotel responsável por gerenciar as operações do sistema. Este perfil necessita de autenticação para acessar um painel administrativo com funcionalidades exclusivas. Have-rá dois níveis de Administrador:
+•	Administrador Master: Possui acesso total, incluindo a capacidade de criar, editar e exclu-ir outros administradores.
+•	Administrador Padrão: Possui acesso às funcionalidades operacionais (gerenciar hóspe-des, quartos, reservas), mas não pode gerenciar outros administradores.
+3.	Requisitos funcionais
+
+3.1	Gerenciamento de Hóspedes
+[RF01] Cadastro de Hóspedes
+Autores: Hóspede
+Descrição: O sistema deve permitir que novos hóspedes realizem seu cadastro, informando nome completo, e-mail, telefone, CPF e senha.
+
+Tabela 1:
+Nome completo	Nome completo do hóspede
+Email	Email do hóspede, utilizado também como login
+CPF	CPF válido do hóspede
+Telefone	Contato para emergências ou confirmações
+Senha	Senha para autenticação na plataforma
+
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+ [RF02] Consulta de Hóspedes
+Autor: Administrador
+Descrição: O sistema deve permitir ao administrador buscar e visualizar os dados dos hóspedes cadastrados.
+
+Filtro de busca:
+•	Filtro por nome
+•	Filtro por CPF
+•	Filtro por email
+•	Filtro por status de conta (ativo/inativa)
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RF03] Atualização de dados do hóspede
+Autor: Hóspede, Administrador
+Descrição: O sistema deve permitir a edição das informações cadastrais dos hóspedes.
+
+Regras de edição:
+•	Apenas o hóspede autenticado pode editar seus próprios dados
+•	O administrador pode editar qualquer dado, exceto senhas
+•	NÃO é permitido alterar CPF
+•	Todas as alterações devem ser registradas com data e usuário responsável
+Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
+[RF04] Exclusão de hóspedes
+Autor: Administrador
+Descrição: O sistema deve permitir ao administrador excluir um cadastro de hóspede, desde que ele não possua reservas futuras ativas.
+
+Regras de exclusão:
+•	Somente o administrador pode excluir um hóspede
+•	Hóspedes com reservas futuras não podem ser excluídos
+•	A exclusão deve ser lógica hóspede marcado como inativo)
+Prioridade:		[ ] Essencial		[ ] Importante		[ x ] Desejável
+3.2	Gerenciamento de Administradores
+[RF05] Cadastro de Administradores
+Autores: Administrador Master
+Descrição: O sistema deve permitir que um administrador com permissão "Master" cadastre novos administradores para o painel administrativo, informando nome, e-mail, senha e perfil de acesso.
+Tabela 2:
+Nome completo	Nome completo do administrador
+Email	Endereço de e-mail para login.
+Senha	Senha de acesso ao painel administrativo.
+Perfil de Acesso	Nível de permissão (Master ou Padrão).
+
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+ [RF06] Login de Administrador
+Autor: Administrador
+Descrição: O sistema deve fornecer uma interface de autenticação onde administradores cadastrados possam acessar o painel administrativo com e-mail e senha.
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RF07] Consulta de Administrador
+Autor: Administrador Master
+Descrição: O sistema deve permitir ao administrador "Master" listar e visualizar todos os administradores do sistema.
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RF08] Atualização de Administrador
+Autor: Administrador Master
+Descrição: O sistema deve permitir a edição dos dados de um administrador, como nome, e-mail e perfil. Não será possível editar a senha diretamente.
+Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
+ [RF09] Exclusão de Administrador
+Autor: Administrador Master
+Descrição: O sistema deve permitir a exclusão lógica (inativação) de um administrador.
+Prioridade:		[ ] Essencial		[ ] Importante		[ x ] Desejável
+3.3	Gerenciamento de quartos
+[RF10] Cadastro de quartos
+Autor: Administrador
+Descrição: O sistema deve permitir o cadastro de novos quartos, informando número, tipo, capacidade, preço por diária e status (ativo/inativo).
+
+Tabela 3:
+Número do quarto	Código identificador 
+Tipo de quarto	Categoria do quarto (ex: suíte, simples)
+Capacidade	Número máximo de hóspedes 
+Preço da diária 	Valor da diária 
+Status	Disponível / Ocupado / Manutenção 
+
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RF11] Consulta de quartos
+Autor: Administrador
+Descrição: O sistema deve permitir que o administrador visualize a lista de quartos cadastrados e suas informações.
+
+Filtro de busca:
+•	Filtro por tipo
+•	Filtro por status (disponível, ocupado, manutenção)
+•	Filtro por capacidade
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RF12] Edição de quartos
+Autor: Administrador
+Descrição: O sistema deve permitir a edição dos dados dos quartos, inclusive seu status (disponível, em manutenção etc.).
+
+Regras de edição:
+•	Tipo, preço e status podem ser alterados
+•	Não é permitido alterar o número do quarto
+•	Quartos com reservas futuras não podem ser desativados
+Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
+[RF13] Exclusão de quartos
+Autor: Administrador
+Descrição: O sistema deve permitir que o administrador exclua um quarto, desde que ele não esteja associado a reservas futuras.
+
+Regras de exclusão:
+•	Somente o administrador pode excluir
+•	Quartos com reservas futuras não podem ser removidos
+•	Exclusão lógica (quarto desativado)
+Prioridade:		[ ] Essencial		[ ] Importante		[ x ] Desejável
+3.4	Gerenciamento de reservas
+[RF14] Cadastro de reserva
+Autor: Hóspede
+Descrição: O sistema deve permitir que hóspedes realizem reservas, informando datas de check-in e check-out, tipo de quarto e número de hóspedes.
+	
+Tabela 4:
+Data de check-in	Data prevista para entrada
+Data de check-out	Data prevista para saída
+Tipo de quarto	Categoria do quarto (ex: simples, luxo)
+Número de hóspedes	Quantidade de pessoas na reserva
+
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RF15] Verificação de Conflitos de Reservas
+Autor: Sistema (automático)
+Descrição: O sistema deve validar a disponibilidade de quartos e impedir reservas que causem sobreposição de datas para o mesmo quarto.
+
+Regras de verificação:
+•	Nenhum quarto pode ser reservado para datas sobrepostas
+•	Considera intervalo de check-in/check-out de todas as reservas confirmadas
+•	A verificação deve ser feita antes de confirmar a reserva
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RF16] Cancelamento de reservas
+Autor: Hóspede
+Descrição: O sistema deve permitir que o hóspede cancele uma reserva com pelo menos 24 horas de antecedência da data de check-in.
+
+Regras de cancelamento:
+•	Cancelamento só permitido até 24h ANTES do check-in
+•	Após esse prazo, apenas o administrador pode cancelar
+•	O sistema deve enviar email de confirmação de cancelamento
+•	Reservas canceladas permanecem registradas como “canceladas”
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+ [RF17] Edição de reservas
+Autor: Hóspede, Administrador
+Descrição: O sistema deve permitir a alteração das datas ou número de hóspedes de uma reserva, caso ainda não tenha sido efetuado o check-in.
+
+Regras de edição:
+•	Só podem ser editadas reservas com mais de 24h ANTES do check-in
+•	Hóspede pode alterar data e número de hóspedes
+•	Administrador pode alterar também o tipo de quarto
+•	CPF do hóspede e ID da reserva são imutáveis
+Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
+3.5	Gerenciamento de Hospedagem
+[RF18] Processar check-in
+Autor: Administrador
+Descrição: O sistema deve permitir ao administrador registrar o check-in de hóspedes a partir da data da reserva.
+
+Regras de check-in:
+•	Só é possível realizar check-in a partir da data agendada
+•	O hóspede deve ter reserva confirmada
+•	O quarto será marcado como “ocupado”
+•	Registro de data e hora do check-in é obrigatório 
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RF19] Processar check-out
+Autor: Administrador
+Descrição: O sistema deve permitir ao administrador registrar o check-out e liberar o quarto para futuras reservas.
+
+Regras de check-in:
+•	Só pode ser feito após check-in
+•	O quarto volta para o status “disponível”
+•	Registro de data/hora do check-out deve ser salvo
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+3.6	Notificações, Comunicações e Histórico de Reservas
+[RF20] Envio de Email de confirmação
+Autor: Sistema (automático)
+Descrição: O sistema deve enviar um e-mail de confirmação ao hóspede após a conclusão de uma reserva ou cancelamento.
+
+Regras de envio de email:
+•	Email enviado após confirmação de reserva ou cancelamento
+•	Deve conter datas, tipo de quarto e código da reserva
+•	Usar endereço de email cadastrado
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RF21] Notificação de Check-in próximo
+Autor: Sistema (automático)
+Descrição: O sistema deve enviar uma notificação por e-mail ao hóspede 24 horas antes da data de check-in como lembrete.
+
+Regras de notificação:
+•	Enviar apenas para reservas ativas
+•	O email deve conter data, local e instruções de chegada
+•	Enviado com 24h de antecedência do check-in (1 dia antes)
+Prioridade:		[ ] Essencial		[ ] Importante		[ x ] Desejável
+						
+						
+[RF22]	 Contato com o hotel
+Autor: Hóspede
+Descrição: O sistema deve oferecer uma funcionalidade de envio de mensagens para contato com o hotel (assunto, mensagem, e-mail de resposta).
+
+Tabela 5:
+Nome	Nome do hóspede
+Email	Para resposta da equipe
+Assunto	Título da solicitação 
+Mensagem	Corpo do texto
+
+Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
+[RF23] Histórico de reserva do hóspede
+Autor: Hóspede
+Descrição: O sistema deve permitir que o hóspede visualize seu histórico de reservas passadas, com status, datas e valores.
+
+Filtros disponíveis:
+•	Filtro por data
+•	Filtro por status (ativo, cancelada, concluída)
+•	Filtro por tipo de quarto
+Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
+3.7	Relatórios
+[RF24] Emissão de relatórios de reserva
+Autor: Administrador
+Descrição: O sistema deve permitir que o administrador gere relatórios filtrando por período, status da reserva e hóspede.
+
+Filtros disponíveis:
+•	Intervalo de datas
+•	Hóspede
+•	Status da reserva (ativa, cancelada, concluída)
+
+Protótipo:
+ 
+ 
+ 
+ 
+Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
+4.	Requisitos não funcionais
+4.1	Usabilidade
+[RNF01] Interface intuitiva
+Autor: Usuário final
+Descrição: O sistema deve possuir uma interface simples e intuitiva, permitindo que o usuário realize uma reserva em até 5 minutos.
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RNF02] Feedback visual
+Autor: Usuário final
+Descrição: O sistema deve apresentar mensagens visuais claras para informar o sucesso ou erro em operações como login, reserva e pagamento.
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+[RNF03] Compatibilidade com dispositivos
+Autor: Usuário final
+Descrição: O sistema deve ser responsivo, adaptando-se corretamente a diferentes tamanhos de tela (desktop, tablet e mobile).
+Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
+4.2	Confiabilidade
+[RNF04] Logs e auditoria
+Autor: Administrador
+Descrição: O sistema deve registrar logs detalhados de operações críticas como login, reservas e pagamentos.
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+4.3	Segurança
+ [RNF05] Controle de acesso por perfil
+Autor: Administrador
+Descrição: O sistema deve aplicar permissões com base em perfis de acesso (usuário comum, administrador).
+Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
+5.	Rastreabilidade
+<Nesta seção referencie a Matriz de Rastreabilidade.>
+6.	Mudanças nos requisitos
+Sempre que seja necessária a introdução de alterações em relação aos requisitos descritos neste documento ou a inclusão de novos requisitos, os seguintes itens devem ser seguidos. <avaliar a adequação de cada item à proposta específica:>
+	Toda solicitação de mudança proveniente do Contratante deverá ser documentada por este e enviada a <elemento da empresa fornecedora, geralmente o gerente do projeto>
+	Um documento contendo a descrição da solicitação de mudança deve ser assinado pelos <elementos da empresa fornecedora e Cliente>, formalizando assim a solicitação.
+	O tempo necessário para avaliar a viabilidade técnica de uma alteração no escopo delineado nesta proposta será cobrado ao Contratante.
+	A empresa fornecedora avaliará o impacto da mudança no cronograma e no custo do serviço e submeterá ao Contratante para aprovação.
+	A empresa fornecedora iniciará a execução da mudança no caso de não haver impacto associado à mesma.>
+<Descrever também se o cliente poderá solicitar mudanças em ferramentas que ele tem acesso.>
+7.	Referências
+<Esta seção deve prover uma lista de todos os documentos relacionados a este documento>
+
+
+
+												
+Representante do contratado		       Representante da contratante
+              		                           
+
+
+		Testemunha 1				Testemunha 2		
+

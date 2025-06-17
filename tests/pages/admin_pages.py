@@ -15,13 +15,14 @@ class AdminLoginPage(BasePage):
     SUBMIT_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
     ERROR_MESSAGE = (By.CLASS_NAME, "alert-danger")
     
-    def __init__(self, driver):
+    def __init__(self, driver, base_url="http://localhost:5000"):
         super().__init__(driver)
-        self.url = "http://localhost:5000/admin/login"
+        self.base_url = base_url
+        self.login_url = f"{self.base_url}/admin/login"
     
     def navigate(self):
         """Navega para página de login"""
-        self.go_to(self.url)
+        self.go_to(self.login_url)
         self.wait_for_page_load()
     
     def login(self, email, password):
@@ -48,13 +49,14 @@ class AdminPanelPage(BasePage):
     ADMINS_CARD = (By.XPATH, "//a[contains(@href, 'gerenciar_administradores')]")
     LOGOUT_BUTTON = (By.CSS_SELECTOR, "a[href='/admin/logout']")
     
-    def __init__(self, driver):
+    def __init__(self, driver, base_url="http://localhost:5000"):
         super().__init__(driver)
-        self.url = "http://localhost:5000/admin/painel"
+        self.base_url = base_url
+        self.panel_url = f"{self.base_url}/admin/painel"
     
     def navigate(self):
         """Navega para painel administrativo"""
-        self.go_to(self.url)
+        self.go_to(self.panel_url)
         self.wait_for_page_load()
     
     def go_to_guests(self):
@@ -82,13 +84,14 @@ class AdminRegistrationPage(BasePage):
     SUCCESS_MESSAGE = (By.CLASS_NAME, "alert-success")
     ERROR_MESSAGE = (By.CLASS_NAME, "alert-danger")
     
-    def __init__(self, driver):
+    def __init__(self, driver, base_url="http://localhost:5000"):
         super().__init__(driver)
-        self.url = "http://localhost:5000/admin/administrador/cadastro"
+        self.base_url = base_url
+        self.registration_url = f"{self.base_url}/admin/administrador/cadastro"
     
     def navigate(self):
         """Navega para página de registro de administrador"""
-        self.go_to(self.url)
+        self.go_to(self.registration_url)
         self.wait_for_page_load()
     
     def fill_form(self, admin_data):
@@ -130,13 +133,14 @@ class AdminListPage(BasePage):
     DELETE_BUTTONS = (By.CSS_SELECTOR, ".btn-outline-danger")
     NO_RESULTS_MESSAGE = (By.XPATH, "//h5[contains(text(), 'Nenhum administrador encontrado')]")
     
-    def __init__(self, driver):
+    def __init__(self, driver, base_url="http://localhost:5000"):
         super().__init__(driver)
-        self.url = "http://localhost:5000/admin/administradores"
+        self.base_url = base_url
+        self.list_url = f"{self.base_url}/admin/administradores"
     
     def navigate(self):
         """Navega para página de listagem de administradores"""
-        self.go_to(self.url)
+        self.go_to(self.list_url)
         self.wait_for_page_load()
     
     def search_admin(self, search_term):
@@ -213,6 +217,12 @@ class AdminEditPage(BasePage):
     PERFIL_FIELD = (By.ID, "perfil")
     SUBMIT_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
     CANCEL_BUTTON = (By.CSS_SELECTOR, ".btn-secondary")
+
+    def __init__(self, driver, base_url="http://localhost:5000"):
+        super().__init__(driver)
+        self.base_url = base_url
+        # Edit URL is dynamic, e.g., f"{self.base_url}/admin/administrador/{admin_id}/editar"
+        # Typically navigated to by clicking an edit button.
     
     def fill_form(self, admin_data):
         """Preenche formulário de edição"""

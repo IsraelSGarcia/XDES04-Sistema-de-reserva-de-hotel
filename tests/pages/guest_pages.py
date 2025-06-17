@@ -53,16 +53,18 @@ class GuestRegistrationPage(BasePage):
     CPF_FIELD = (By.ID, "cpf")
     SENHA_FIELD = (By.ID, "senha")
     SUBMIT_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
+    ACEITAR_TERMOS_CHECKBOX = (By.ID, "aceitar_termos") # ADDED HERE
     SUCCESS_MESSAGE = (By.CLASS_NAME, "alert-success")
     ERROR_MESSAGE = (By.CLASS_NAME, "alert-danger")
     
-    def __init__(self, driver):
+    def __init__(self, driver, base_url="http://localhost:5000"):
         super().__init__(driver)
-        self.url = "http://localhost:5000/hospede/cadastro"
+        self.base_url = base_url
+        self.registration_url = f"{self.base_url}/hospede/cadastro"
     
     def navigate(self):
         """Navega para página de registro de hóspede"""
-        self.go_to(self.url)
+        self.go_to(self.registration_url)
         self.wait_for_page_load()
     
     def fill_form(self, guest_data):
@@ -72,6 +74,10 @@ class GuestRegistrationPage(BasePage):
         self.send_keys(self.TELEFONE_FIELD, guest_data.get("telefone", ""))
         self.send_keys(self.CPF_FIELD, guest_data.get("cpf", ""))
         self.send_keys(self.SENHA_FIELD, guest_data.get("senha", ""))
+        # Check the "aceitar_termos" checkbox
+        checkbox_element = self.find_element(self.ACEITAR_TERMOS_CHECKBOX)
+        if checkbox_element and not checkbox_element.is_selected():
+            self.click(self.ACEITAR_TERMOS_CHECKBOX)
     
     def submit_form(self):
         """Submete o formulário"""
@@ -104,13 +110,14 @@ class GuestListPage(BasePage):
     DELETE_BUTTONS = (By.CSS_SELECTOR, ".btn-outline-danger")
     NO_RESULTS_MESSAGE = (By.XPATH, "//h5[contains(text(), 'Nenhum hóspede encontrado')]")
     
-    def __init__(self, driver):
+    def __init__(self, driver, base_url="http://localhost:5000"):
         super().__init__(driver)
-        self.url = "http://localhost:5000/admin/hospedes"
+        self.base_url = base_url
+        self.list_url = f"{self.base_url}/admin/hospedes"
     
     def navigate(self):
         """Navega para página de listagem de hóspedes"""
-        self.go_to(self.url)
+        self.go_to(self.list_url)
         self.wait_for_page_load()
     
     def search_guest(self, search_term):
@@ -162,6 +169,13 @@ class GuestEditPage(BasePage):
     SENHA_FIELD = (By.ID, "senha")
     SUBMIT_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
     CANCEL_BUTTON = (By.CSS_SELECTOR, ".btn-secondary")
+
+    def __init__(self, driver, base_url="http://localhost:5000"):
+        super().__init__(driver)
+        self.base_url = base_url
+        # The edit URL is dynamic (e.g., f"{self.base_url}/admin/hospede/{guest_id}/editar")
+        # and typically navigated to by clicking an edit button,
+        # or constructed in the test if direct navigation is needed.
     
     def fill_form(self, guest_data):
         """Preenche formulário de edição"""

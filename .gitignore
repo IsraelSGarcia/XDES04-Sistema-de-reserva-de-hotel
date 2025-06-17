@@ -50,34 +50,6 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Relat�rios
+# Relat�rios
 tests/reports/*.html
 tests/screenshots/*.png
-
-# Credenciais e Segurança (CRÍTICO!)
-.env
-.env.local  
-.env.production
-.env.development
-secrets.json
-config/secrets.py
-*.pem
-*.key
-*.token
-api_keys.txt
-passwords.txt
-
-# Banco de dados (dados sensíveis)
-*.db            # Seu restel.db!
-*.sqlite
-*.sqlite3
-data/*.db
-
-# Arquivos temporários
-*.tmp
-*.temp
-*.bak
-*.orig
-
-# Melhorar seção de ambiente virtual
-.venv/          # Adicionar esta variação
