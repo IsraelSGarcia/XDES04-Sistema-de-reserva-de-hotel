@@ -119,59 +119,36 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
-                                    <th>Quarto</th>
-                                    <th>Check-in</th>
-                                    <th>Check-out</th>
-                                    <th>Hóspedes</th>
-                                    <th>Valor</th>
-                                    <th>Status</th>
-                                    <th class="text-center">Ações</th>
+                                    <th scope="col">Reserva #</th>
+                                    <th scope="col">Quarto</th>
+                                    <th scope="col">Período</th>
+                                    <th scope="col">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for reserva in proximas_reservas %}
                                 <tr>
-                                    <td>
-                                        <strong>{{ reserva.quarto_numero }}</strong><br>
-                                        <small class="text-muted">{{ reserva.quarto_tipo }}</small>
-                                    </td>
-                                    <td>{{ reserva.data_checkin }}</td>
-                                    <td>{{ reserva.data_checkout }}</td>
-                                    <td>
-                                        <i class="fas fa-users me-1"></i>{{ reserva.numero_hospedes }}
-                                    </td>
-                                    <td>
-                                        <strong>R$ {{ reserva.valor_total|round(2) }}</strong>
-                                    </td>
+                                    <th scope="row">{{ reserva.id }}</th>
+                                    <td>{{ reserva.quarto_numero }} - {{ reserva.quarto_tipo }}</td>
+                                    <td>{{ reserva.data_checkin | format_date }} a {{ reserva.data_checkout | format_date }}</td>
                                     <td>
                                         {% if reserva.status == 'Ativa' %}
-                                            <span class="badge bg-success">{{ reserva.status }}</span>
-                                        {% elif reserva.status == 'Check-in' %}
-                                            <span class="badge bg-primary">{{ reserva.status }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        {% if reserva.status == 'Ativa' %}
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ url_for('editar_reserva_hospede', reserva_id=reserva.id) }}" 
-                                               class="btn btn-outline-primary btn-sm" 
-                                               title="Editar reserva">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button type="button" 
-                                                    class="btn btn-outline-danger btn-sm" 
-                                                    title="Cancelar reserva"
-                                                    onclick="confirmarCancelamento({{ reserva.id }})">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
+                                        <span class="badge bg-primary">Ativa</span>
+                                        {% elif reserva.status == 'Concluída' %}
+                                        <span class="badge bg-success">Concluída</span>
+                                        {% elif reserva.status == 'Cancelada' %}
+                                        <span class="badge bg-danger">Cancelada</span>
                                         {% else %}
-                                        <span class="text-muted">-</span>
+                                        <span class="badge bg-secondary">{{ reserva.status }}</span>
                                         {% endif %}
                                     </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Nenhuma reserva futura encontrada.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -188,6 +165,23 @@
         </div>
     </div>
     {% endif %}
+
+    <!-- Notificações no Dispositivo -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Notificações no Dispositivo</h5>
+                </div>
+                <div class="card-body">
+                    <p>Receba alertas sobre suas reservas diretamente no seu navegador ou celular.</p>
+                    <button id="ask-push-permission" class="btn btn-primary">
+                        <i class="fas fa-power-off me-2"></i>Ativar Notificações
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal de Confirmação de Cancelamento -->
@@ -222,10 +216,16 @@
 </div>
 
 <script>
-function confirmarCancelamento(reservaId) {
-    document.getElementById('formCancelamento').action = `/hospede/reserva/${reservaId}/cancelar`;
-    var modal = new bootstrap.Modal(document.getElementById('modalCancelamento'));
-    modal.show();
-}
+    function confirmarCancelamento(button) {
+        const reservaId = button.getAttribute('data-reserva-id');
+        if (confirm(`Tem certeza de que deseja cancelar a reserva #${reservaId}? Esta ação não pode ser desfeita.`)) {
+            // Cria um formulário dinâmico e o submete
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/hospede/reserva/${reservaId}/cancelar`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
 </script>
 {% endblock %} 

@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Histórico de Reservas - Hotel Boa Estadia{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Início</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('painel_hospede') }}">Painel</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Histórico</li>
+        </ol>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-history me-2 text-primary"></i>Histórico de Reservas
+                    </h2>
+                    <p class="text-muted mb-0">Visualize todas as suas reservas passadas e futuras</p>
+                </div>
+                <a href="{{ url_for('painel_hospede') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar ao Painel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>Filtros de Busca
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('historico_reservas_hospede') }}">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="data" class="form-label">Data Específica</label>
+                        <input type="date" class="form-control" id="data" name="data" value="{{ filtro_data }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">Todos os status</option>
+                            <option value="Ativa" {% if filtro_status == 'Ativa' %}selected{% endif %}>Ativa</option>
+                            <option value="Check-in" {% if filtro_status == 'Check-in' %}selected{% endif %}>Check-in</option>
+                            <option value="Check-out" {% if filtro_status == 'Check-out' %}selected{% endif %}>Check-out</option>
+                            <option value="Cancelada" {% if filtro_status == 'Cancelada' %}selected{% endif %}>Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="tipo" class="form-label">Tipo de Quarto</label>
+                        <input type="text" class="form-control" id="tipo" name="tipo" 
+                               placeholder="Ex: Suíte, Standard..." value="{{ filtro_tipo }}">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-search me-1"></i>Filtrar
+                        </button>
+                        <a href="{{ url_for('historico_reservas_hospede') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Limpar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Reservas -->
+    <div class="row">
+        <div class="col-12">
+            {% if reservas %}
+                <div class="card">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Suas Reservas
+                        </h5>
+                        <span class="badge bg-primary">{{ reservas|length }} encontrada(s)</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Quarto</th>
+                                        <th>Check-in</th>
+                                        <th>Check-out</th>
+                                        <th>Dias</th>
+                                        <th>Hóspedes</th>
+                                        <th>Valor Total</th>
+                                        <th>Status</th>
+                                        <th>Data da Reserva</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reserva in reservas %}
+                                        <tr>
+                                            <td>
+                                                <strong>#{{ reserva.id }}</strong>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <strong>{{ reserva.quarto_numero }}</strong><br>
+                                                    <small class="text-muted">{{ reserva.quarto_tipo }}</small>
+                                                </div>
+                                            </td>
+                                            <td>{{ reserva.data_checkin | replace('-', '/') }}</td>
+                                            <td>{{ reserva.data_checkout | replace('-', '/') }}</td>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    {{ reserva.dias_estadia }} dia(s)
+                                                </span>
+                                            </td>
+                                            <td>{{ reserva.numero_hospedes }}</td>
+                                            <td>
+                                                <strong class="text-success">R$ {{ "%.2f"|format(reserva.valor_total) }}</strong>
+                                            </td>
+                                            <td>
+                                                {% if reserva.status == 'Ativa' %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check me-1"></i>Ativa
+                                                    </span>
+                                                {% elif reserva.status == 'Check-in' %}
+                                                    <span class="badge bg-primary">
+                                                        <i class="fas fa-sign-in-alt me-1"></i>Check-in
+                                                    </span>
+                                                {% elif reserva.status == 'Check-out' %}
+                                                    <span class="badge bg-info">
+                                                        <i class="fas fa-sign-out-alt me-1"></i>Check-out
+                                                    </span>
+                                                {% elif reserva.status == 'Cancelada' %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-times me-1"></i>Cancelada
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ reserva.data_reserva.split(' ')[0] if reserva.data_reserva else 'N/A' }}
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estatísticas Resumidas -->
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-bed fa-2x text-primary mb-2"></i>
+                                <h4>{{ reservas|length }}</h4>
+                                <p class="text-muted mb-0">Total de Reservas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-calendar-day fa-2x text-info mb-2"></i>
+                                <h4>{{ reservas | selectattr('dias_estadia') | sum(attribute='dias_estadia') }}</h4>
+                                <p class="text-muted mb-0">Dias Hospedado</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+                                <h4>R$ {{ "%.2f"|format(reservas | sum(attribute='valor_total')) }}</h4>
+                                <p class="text-muted mb-0">Valor Total Gasto</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-check-circle fa-2x text-warning mb-2"></i>
+                                <h4>{{ reservas | selectattr('status', 'equalto', 'Check-out') | list | length }}</h4>
+                                <p class="text-muted mb-0">Estadias Concluídas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Nenhuma reserva encontrada</h5>
+                        <p class="text-muted">
+                            {% if filtro_data or filtro_status or filtro_tipo %}
+                                Tente alterar os filtros de busca ou 
+                                <a href="{{ url_for('historico_reservas_hospede') }}">limpar todos os filtros</a>.
+                            {% else %}
+                                Você ainda não possui reservas em nosso sistema.
+                            {% endif %}
+                        </p>
+                        <a href="{{ url_for('nova_reserva_hospede') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Fazer Nova Reserva
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

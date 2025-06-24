@@ -22,7 +22,7 @@
                         <div class="col-md-4 text-md-end">
                             <p class="card-text">
                                 <strong>Hotel Boa Estadia</strong><br>
-                                <small class="text-muted">Sistema de Reservas</small>
+                                <small class="text-light">Sistema de Reservas</small>
                             </p>
                         </div>
                     </div>
@@ -42,11 +42,11 @@
     
     <div class="row g-4">
         <!-- Gerenciamento de Hóspedes -->
-        <div class="col-lg-6">
+        <div class="col-lg-4 col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <div class="feature-icon mx-auto mb-3">
-                        <i class="fas fa-users fa-2x"></i>
+                        <i class="fas fa-users fa-2x text-primary"></i>
                     </div>
                     <h3 class="h5 fw-bold mb-3">Hóspedes</h3>
                     <p class="text-muted mb-4">
@@ -60,17 +60,17 @@
         </div>
         
         <!-- Gerenciamento de Quartos -->
-        <div class="col-lg-6">
+        <div class="col-lg-4 col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <div class="feature-icon mx-auto mb-3">
-                        <i class="fas fa-bed fa-2x"></i>
+                        <i class="fas fa-bed fa-2x text-success"></i>
                     </div>
                     <h3 class="h5 fw-bold mb-3">Quartos</h3>
                     <p class="text-muted mb-4">
                         Controle de quartos e disponibilidade
                     </p>
-                    <a href="{{ url_for('gerenciar_quartos') }}" class="btn btn-primary">
+                    <a href="{{ url_for('gerenciar_quartos') }}" class="btn btn-success">
                         <i class="fas fa-bed me-2"></i>Acessar
                     </a>
                 </div>
@@ -78,17 +78,17 @@
         </div>
         
         <!-- Gerenciamento de Reservas -->
-        <div class="col-lg-6">
+        <div class="col-lg-4 col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <div class="feature-icon mx-auto mb-3">
-                        <i class="fas fa-calendar-check fa-2x"></i>
+                        <i class="fas fa-calendar-check fa-2x text-warning"></i>
                     </div>
                     <h3 class="h5 fw-bold mb-3">Reservas</h3>
                     <p class="text-muted mb-4">
                         Gestão completa de reservas
                     </p>
-                    <a href="{{ url_for('gerenciar_reservas') }}" class="btn btn-primary">
+                    <a href="{{ url_for('gerenciar_reservas') }}" class="btn btn-warning">
                         <i class="fas fa-calendar-check me-2"></i>Acessar
                     </a>
                 </div>
@@ -96,11 +96,11 @@
         </div>
         
         <!-- Gerenciamento de Administradores -->
-        <div class="col-lg-6">
+        <div class="col-lg-4 col-md-6 mb-4">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <div class="feature-icon mx-auto mb-3">
-                        <i class="fas fa-user-cog fa-2x"></i>
+                        <i class="fas fa-user-cog fa-2x text-secondary"></i>
                     </div>
                     <h3 class="h5 fw-bold mb-3">Administradores</h3>
                     <p class="text-muted mb-4">
@@ -110,7 +110,7 @@
                         {% endif %}
                     </p>
                     {% if session.admin_perfil == 'Master' %}
-                        <a href="{{ url_for('gerenciar_administradores') }}" class="btn btn-primary">
+                        <a href="{{ url_for('gerenciar_administradores') }}" class="btn btn-secondary">
                             <i class="fas fa-user-cog me-2"></i>Acessar
                         </a>
                     {% else %}
@@ -120,6 +120,80 @@
                     {% endif %}
                 </div>
             </div>
+        </div>
+
+        <!-- Relatórios -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="fas fa-chart-bar fa-2x text-info"></i>
+                    </div>
+                    <h3 class="h5 fw-bold mb-3">Relatórios</h3>
+                    <p class="text-muted mb-4">
+                        Gerar relatórios detalhados do sistema
+                    </p>
+                    <a href="{{ url_for('relatorios') }}" class="btn btn-info">
+                        <i class="fas fa-chart-line me-2"></i>Acessar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensagens de Contato -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="fas fa-envelope fa-2x text-primary"></i>
+                    </div>
+                    <h3 class="h5 fw-bold mb-3">Mensagens</h3>
+                    <p class="text-muted mb-4">
+                        Ver mensagens de contato recebidas
+                    </p>
+                    <a href="{{ url_for('gerenciar_contatos') }}" class="btn btn-primary">
+                        <i class="fas fa-inbox me-2"></i>Acessar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notificações Check-in -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="fas fa-bell fa-2x text-warning"></i>
+                    </div>
+                    <h3 class="h5 fw-bold mb-3">Notificações Check-in</h3>
+                    <p class="text-muted mb-3">
+                        Lembretes automáticos 24h antes do check-in
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('configurar_notificacoes') }}" class="btn btn-warning">
+                            <i class="fas fa-bell me-2"></i>Configurar
+                        </a>
+                        <form method="POST" action="{{ url_for('executar_notificacoes_checkin') }}">
+                            <button type="submit" class="btn btn-outline-warning btn-sm w-100">
+                                <i class="fas fa-paper-plane me-1"></i>Executar Agora
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+    <!-- Link para Logout -->
+    <div class="row mt-5">
+        <div class="col-12 text-end">
+            <a href="{{ url_for('logout_admin') }}" class="btn btn-outline-danger">
+                <i class="fas fa-sign-out-alt me-2"></i>Sair do Sistema
+            </a>
         </div>
     </div>
 </div>

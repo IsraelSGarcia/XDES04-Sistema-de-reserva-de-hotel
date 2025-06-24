@@ -34,3 +34,7 @@ Request Content-Type: application/x-www-form-urlencoded
 DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
 Request form: {'nome_completo': 'osd adhisd a isajd', 'email': 'oia@oia.com', 'cpf': '342.343.243-43', 'telefone': '(34) 23423-4343', 'senha': 'admin123'}
 Request Content-Type: application/x-www-form-urlencoded
+--- HIT at 2025-06-24 08:19:54.815359 ---
+DATABASE path: C:\Users\Israel\Desktop\ReservaHotel\restel\data\restel.db
+Request form: {'nome_completo': 'Felipe', 'email': 'felipe@adjsij.com', 'cpf': '545.678.976-54', 'telefone': '(76) 54678-97657', 'senha': 'admin123'}
+Request Content-Type: application/x-www-form-urlencoded

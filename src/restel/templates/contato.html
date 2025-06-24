@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Contato - Hotel Boa Estadia{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Início</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Contato</li>
+        </ol>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-envelope me-2 text-primary"></i>Entre em Contato
+                    </h2>
+                    <p class="text-muted mb-0">Tem alguma dúvida? Envie-nos uma mensagem!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulário de Contato -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comment-alt me-2"></i>Enviar Mensagem
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('processar_contato') }}">
+                        <div class="row g-3">
+                            <!-- Nome -->
+                            <div class="col-md-6">
+                                <label for="nome" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Nome Completo <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="nome" name="nome" 
+                                       placeholder="Seu nome completo" required maxlength="100">
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Email <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="seu@email.com" required maxlength="100">
+                            </div>
+
+                            <!-- Assunto -->
+                            <div class="col-12">
+                                <label for="assunto" class="form-label">
+                                    <i class="fas fa-tag me-1"></i>Assunto <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="assunto" name="assunto" 
+                                       placeholder="Assunto da sua mensagem" required maxlength="200">
+                            </div>
+
+                            <!-- Mensagem -->
+                            <div class="col-12">
+                                <label for="mensagem" class="form-label">
+                                    <i class="fas fa-comment me-1"></i>Mensagem <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control" id="mensagem" name="mensagem" rows="6" 
+                                          placeholder="Digite sua mensagem aqui..." required></textarea>
+                                <div class="form-text">
+                                    Descreva sua dúvida ou solicitação com o máximo de detalhes possível.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Voltar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>Enviar Mensagem
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações de Contato -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Informações de Contato
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="contact-info">
+                        <div class="mb-3">
+                            <h6><i class="fas fa-map-marker-alt me-2 text-primary"></i>Endereço</h6>
+                            <p class="mb-0 text-muted">
+                                Rua das Flores, 123 - Centro<br>
+                                CEP: 37200-000<br>
+                                Lavras/MG
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6><i class="fas fa-phone me-2 text-primary"></i>Telefone</h6>
+                            <p class="mb-0 text-muted">(35) 3821-0000</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6><i class="fas fa-envelope me-2 text-primary"></i>Email</h6>
+                            <p class="mb-0 text-muted">contato@hotelboaestadia.com</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6><i class="fas fa-clock me-2 text-primary"></i>Horário de Funcionamento</h6>
+                            <p class="mb-0 text-muted">
+                                24 horas por dia<br>
+                                7 dias por semana
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-lightbulb me-2"></i>Dica</h6>
+                        <p class="mb-0 small">
+                            Para um atendimento mais rápido, inclua o número da sua reserva (se houver) na mensagem.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

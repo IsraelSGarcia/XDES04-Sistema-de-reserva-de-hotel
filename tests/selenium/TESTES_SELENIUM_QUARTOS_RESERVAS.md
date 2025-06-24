@@ -230,9 +230,9 @@
 **Objetivo**: Testar filtro por status
 ```
 1. Navegar para /admin/reservas
-2. Selecionar "Confirmada" no filtro
+2. Selecionar "Ativa" no filtro
 3. Aplicar filtro
-4. Verificar apenas reservas confirmadas
+4. Verificar apenas reservas ativas
 5. Testar outros status
 ```
 
@@ -252,7 +252,7 @@
 **Objetivo**: Realizar check-in de uma reserva
 ```
 1. Navegar para /admin/reservas
-2. Localizar reserva com status "Confirmada"
+2. Localizar reserva com status "Ativa"
 3. Clicar em "Check-in"
 4. Confirmar ação
 5. Verificar mudança de status para "Em Andamento"
