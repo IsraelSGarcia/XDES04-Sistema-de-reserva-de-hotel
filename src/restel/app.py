@@ -12,6 +12,19 @@ from py_vapid import Vapid # type: ignore
 app = Flask(__name__)
 app.secret_key = 'restel_secret_key_2025'
 
+# --- Filtro Jinja para formatar data ---
+def format_date_filter(date_str):
+    """Filtro para formatar data de 'YYYY-MM-DD' para 'DD/MM/YYYY' nos templates."""
+    if not date_str:
+        return ""
+    try:
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        return date_obj.strftime('%d/%m/%Y')
+    except (ValueError, TypeError):
+        return date_str # Retorna o valor original se não puder ser formatado
+
+app.jinja_env.filters['format_date'] = format_date_filter
+
 # Configurações do banco de dados
 DATABASE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'restel.db')
 

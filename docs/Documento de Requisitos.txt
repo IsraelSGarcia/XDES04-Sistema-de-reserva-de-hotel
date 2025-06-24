@@ -104,7 +104,7 @@ O cliente é a Rede de Hotéis Boa Estadia, uma empresa que busca modernizar e a
 2.3	Descrição dos usuários
 O sistema terá dois perfis principais:
 2.3.1	Hóspede
-Qualquer pessoa que acesse a área pública do site para realizar, consultar ou cancelar uma reserva. Este perfil não precisa de login para a maioria das ações, mas seu cadastro é necessário para efetuar uma reserva.
+Qualquer pessoa que acesse a área pública do site para realizar, consultar ou cancelar uma reserva. Seu cadastro é necessário para efetuar uma reserva.
 2.3.2	Administrador
 Funcionário do hotel responsável por gerenciar as operações do sistema. Este perfil necessita de autenticação para acessar um painel administrativo com funcionalidades exclusivas. Have-rá dois níveis de Administrador:
 •	Administrador Master: Possui acesso total, incluindo a capacidade de criar, editar e exclu-ir outros administradores.
@@ -261,48 +261,25 @@ Regras de edição:
 •	Administrador pode alterar também o tipo de quarto
 •	CPF do hóspede e ID da reserva são imutáveis
 Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
-3.5	Gerenciamento de Hospedagem
-[RF18] Processar check-in
-Autor: Administrador
-Descrição: O sistema deve permitir ao administrador registrar o check-in de hóspedes a partir da data da reserva.
-
-Regras de check-in:
-•	Só é possível realizar check-in a partir da data agendada
-•	O hóspede deve ter reserva confirmada
-•	O quarto será marcado como “ocupado”
-•	Registro de data e hora do check-in é obrigatório 
-Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
-[RF19] Processar check-out
-Autor: Administrador
-Descrição: O sistema deve permitir ao administrador registrar o check-out e liberar o quarto para futuras reservas.
-
-Regras de check-in:
-•	Só pode ser feito após check-in
-•	O quarto volta para o status “disponível”
-•	Registro de data/hora do check-out deve ser salvo
-Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
-3.6	Notificações, Comunicações e Histórico de Reservas
-[RF20] Envio de Email de confirmação
+3.5	Notificações, Comunicações e Histórico de Reservas
+[RF18] Envio de notificação de confirmação
 Autor: Sistema (automático)
-Descrição: O sistema deve enviar um e-mail de confirmação ao hóspede após a conclusão de uma reserva ou cancelamento.
+Descrição: O sistema deve enviar uma notificação de confirmação ao hóspede após a conclusão de uma reserva ou cancelamento.
 
-Regras de envio de email:
-•	Email enviado após confirmação de reserva ou cancelamento
-•	Deve conter datas, tipo de quarto e código da reserva
-•	Usar endereço de email cadastrado
+Regras de envio de notificação:
+•	Notificação enviado após confirmação de reserva ou cancelamento
 Prioridade:		[ x ] Essencial		[ ] Importante		[ ] Desejável
-[RF21] Notificação de Check-in próximo
+[RF19] Notificação de Check-in próximo
 Autor: Sistema (automático)
-Descrição: O sistema deve enviar uma notificação por e-mail ao hóspede 24 horas antes da data de check-in como lembrete.
+Descrição: O sistema deve enviar uma notificação ao hóspede 24 horas antes da data de check-in como lembrete.
 
 Regras de notificação:
 •	Enviar apenas para reservas ativas
-•	O email deve conter data, local e instruções de chegada
 •	Enviado com 24h de antecedência do check-in (1 dia antes)
 Prioridade:		[ ] Essencial		[ ] Importante		[ x ] Desejável
 						
 						
-[RF22]	 Contato com o hotel
+[RF20] Contato com o hotel
 Autor: Hóspede
 Descrição: O sistema deve oferecer uma funcionalidade de envio de mensagens para contato com o hotel (assunto, mensagem, e-mail de resposta).
 
@@ -313,7 +290,7 @@ Assunto	Título da solicitação
 Mensagem	Corpo do texto
 
 Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
-[RF23] Histórico de reserva do hóspede
+[RF21] Histórico de reserva do hóspede
 Autor: Hóspede
 Descrição: O sistema deve permitir que o hóspede visualize seu histórico de reservas passadas, com status, datas e valores.
 
@@ -322,8 +299,8 @@ Filtros disponíveis:
 •	Filtro por status (ativo, cancelada, concluída)
 •	Filtro por tipo de quarto
 Prioridade:		[ ] Essencial		[ x ] Importante		[ ] Desejável
-3.7	Relatórios
-[RF24] Emissão de relatórios de reserva
+3.6	Relatórios
+[RF22] Emissão de relatórios de reserva
 Autor: Administrador
 Descrição: O sistema deve permitir que o administrador gere relatórios filtrando por período, status da reserva e hóspede.
 
